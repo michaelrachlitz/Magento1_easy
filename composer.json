@@ -1,0 +1,19 @@
+{
+    "name": "dibs/easy_checkout", 
+    "type": "magento-module", 
+    "description": "DIBS Easy Checkout", 
+    "license": "proprietary", 
+    "authors": [
+        {
+            "name": "Leonid Novikov", 
+            "email": "leonid.novikov@vaimo.com"
+        }
+    ], 
+    "require": {
+        "vaimo/magento": "*", 
+        "magento-hackathon/magento-composer-installer": "*"
+    }, 
+    "extra": {
+        "vaimo-module-category": "Checkout"
+    }
+}

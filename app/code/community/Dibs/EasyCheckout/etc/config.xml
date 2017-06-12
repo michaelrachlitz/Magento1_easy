@@ -1,0 +1,187 @@
+<?xml version="1.0" ?>
+<!--
+/**
+ * Copyright (c) 2009-2017 Vaimo Group
+ *
+ * Vaimo reserves all rights in the Program as delivered. The Program
+ * or any portion thereof may not be reproduced in any form whatsoever without
+ * the written consent of Vaimo, except as provided by licence. A licence
+ * under Vaimo's rights in the Program may be available directly from
+ * Vaimo.
+ *
+ * Disclaimer:
+ * THIS NOTICE MAY NOT BE REMOVED FROM THE PROGRAM BY ANY USER THEREOF.
+ * THE PROGRAM IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE PROGRAM OR THE USE OR OTHER DEALINGS
+ * IN THE PROGRAM.
+ *
+ * @category    Dibs
+ * @package     Dibs_EasyCheckout
+ * @copyright   Copyright (c) 2009-2017 Vaimo Group
+ */
+-->
+
+<config>
+    <modules>
+        <Dibs_EasyCheckout>
+            <version>0.1.0</version>
+            <name>DIBS Easy Checkout Module</name>
+            <depends>
+                <Mage_Checkout/>
+            </depends>
+        </Dibs_EasyCheckout>
+    </modules>
+
+    <global>
+        <blocks>
+            <dibs_easycheckout>
+                <class>Dibs_EasyCheckout_Block</class>
+            </dibs_easycheckout>
+            <adminhtml>
+                <rewrite>
+                    <sales_order_creditmemo_totals>Dibs_EasyCheckout_Block_Adminhtml_Sales_Order_Creditmemo_Totals</sales_order_creditmemo_totals>
+                </rewrite>
+            </adminhtml>
+        </blocks>
+        <models>
+            <dibs_easycheckout>
+                <class>Dibs_EasyCheckout_Model</class>
+                <resourceModel>dibs_easycheckout_resource</resourceModel>
+            </dibs_easycheckout>
+            <dibs_easycheckout_resource>
+                <class>Dibs_EasyCheckout_Model_Resource</class>
+            </dibs_easycheckout_resource>
+        </models>
+        <helpers>
+            <dibs_easycheckout>
+                <class>Dibs_EasyCheckout_Helper</class>
+            </dibs_easycheckout>
+        </helpers>
+        <resources>
+            <dibs_easycheckout_setup>
+                <setup>
+                    <module>Dibs_EasyCheckout</module>
+                    <class>Mage_Eav_Model_Entity_Setup</class>
+                </setup>
+                <connection>
+                    <use>core_setup</use>
+                </connection>
+            </dibs_easycheckout_setup>
+
+            <dibs_easycheckout_write>
+                <connection>
+                    <use>core_write</use>
+                </connection>
+            </dibs_easycheckout_write>
+
+            <dibs_easycheckout_read>
+                <connection>
+                    <use>core_read</use>
+                </connection>
+            </dibs_easycheckout_read>
+        </resources>
+        <events>
+            <sales_model_service_quote_submit_before>
+                <observers>
+                    <klarna>
+                        <type>singleton</type>
+                        <class>dibs_easycheckout/observer</class>
+                        <method>saveOrderDibsEasyPaymentId</method>
+                    </klarna>
+                </observers>
+            </sales_model_service_quote_submit_before>
+            <sales_quote_save_before>
+                <observers>
+                    <dibs_easycheckout>
+                        <type>singleton</type>
+                        <class>dibs_easycheckout/observer</class>
+                        <method>validateDibsEasyPaymentId</method>
+                    </dibs_easycheckout>
+                </observers>
+            </sales_quote_save_before>
+            <sales_order_payment_capture>
+                <observers>
+                    <dibs_easycheckout>
+                        <type>singleton</type>
+                        <class>dibs_easycheckout/observer</class>
+                        <method>setInvoiceToPaymentObject</method>
+                    </dibs_easycheckout>
+                </observers>
+            </sales_order_payment_capture>
+        </events>
+    </global>
+    <frontend>
+        <routers>
+            <dibs_easycheckout>
+                <use>standard</use>
+                <args>
+                    <module>Dibs_EasyCheckout</module>
+                    <frontName>dibseasy</frontName>
+                </args>
+            </dibs_easycheckout>
+        </routers>
+        <translate>
+            <modules>
+                <Dibs_EasyCheckout>
+                    <files>
+                        <default>Dibs_EasyCheckout.csv</default>
+                    </files>
+                </Dibs_EasyCheckout>
+            </modules>
+        </translate>
+        <layout>
+            <updates>
+                <dibs_easycheckout>
+                    <file>dibs_easycheckout.xml</file>
+                </dibs_easycheckout>
+            </updates>
+        </layout>
+    </frontend>
+    <adminhtml>
+        <translate>
+            <modules>
+                <Dibs_EasyCheckout>
+                    <files>
+                        <default>Dibs_EasyCheckout.csv</default>
+                    </files>
+                </Dibs_EasyCheckout>
+            </modules>
+        </translate>
+    </adminhtml>
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <dibs before="Mage_Adminhtml">Dibs_EasyCheckout_Adminhtml</dibs>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+
+    <default>
+        <carriers>
+            <dibs_easy_free_shipping>
+                <active>0</active>
+                <model>dibs_easycheckout/carrier_freeshipping</model>
+                <title>Dibs Easy Checkout Free Shipping</title>
+                <sort_order>10</sort_order>
+                <sallowspecific>0</sallowspecific>
+                <express_max_weight>0</express_max_weight>
+            </dibs_easy_free_shipping>
+        </carriers>
+        <payment>
+            <dibs_easy_checkout>
+                <title>Dibs Easy Checkout</title>
+                <model>dibs_easycheckout/payment_checkout</model>
+                <active>0</active>
+                <sort_order>999</sort_order>
+            </dibs_easy_checkout>
+        </payment>
+    </default>
+</config>
