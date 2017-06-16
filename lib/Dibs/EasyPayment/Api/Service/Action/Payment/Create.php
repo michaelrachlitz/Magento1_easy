@@ -5,8 +5,14 @@
  */
 class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPayment_Api_Service_Action_AbstractAction{
 
+    /**
+     * @var string
+     */
     protected $apiEndpoint = '/payments';
 
+    /**
+     * @var array
+     */
     protected $orderFields = [
         'items',
         'amount',
@@ -14,6 +20,9 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
         'reference'
     ];
 
+    /**
+     * @var array
+     */
     protected $orderItemFields = [
         'reference',
         'name',
@@ -26,7 +35,12 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
         'netTotalAmount'
     ];
 
-    protected $checkoutFields = ['url'];
+    /**
+     * @var array
+     */
+    protected $checkoutFields = [
+        'url'
+    ];
 
     /**
      * @return string
@@ -47,7 +61,7 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
 
         $this->validateRequest($params);
         $apiEndPoint = $this->getApiEndpoint();
-        $response = $this->getClient()->request($apiEndPoint,'POST', $params);
+        $response = $this->getClient()->request($apiEndPoint, 'POST', $params);
         $this->validateResponse($response);
         return $response;
     }

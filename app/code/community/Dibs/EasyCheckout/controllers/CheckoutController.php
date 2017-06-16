@@ -26,6 +26,9 @@
 class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Action
 {
 
+    /**
+     * Page where payment is initiated
+     */
     public function indexAction()
     {
         /** @var Dibs_EasyCheckout_Helper_Data $helper */
@@ -41,25 +44,30 @@ class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Ac
         try {
 
             $paymentId = $helper->getQuote()->getDibsEasyPaymentId();
+
             if (empty($paymentId)){
                 $paymentId = $dibsCheckout->createPaymentId($helper->getQuote());
             }
 
-            Mage::register('dibs_easy_payment_id',$paymentId);
+            Mage::register('dibs_easy_payment_id', $paymentId);
 
-        } catch (Exception $e){
+        } catch (Exception $e) {
+
+            Mage::logException($e);
+
             $messsage = $helper->__('There is error. Please contact store administrator for details');
             $helper->getCheckout()->addError($messsage);
-            $this->_redirect('checkout/cart');
+            return $this->_redirect('checkout/cart');
         }
-        $this->loadLayout();
+
         $this->_initLayoutMessages('customer/session');
+        $this->loadLayout();
         $this->getLayout()->getBlock('head')->setTitle($helper->__('DIBS Easy Checkout'));
         $this->renderLayout();
     }
 
     /**
-     *
+     * Validates result coming back from DIBS
      */
     public function validateAction()
     {
@@ -70,10 +78,12 @@ class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Ac
         $paymentId = $quote->getDibsEasyPaymentId();
 
         if (empty($paymentId)){
+            Mage::log('No payment ID was saved on the customers quote, please make sure this column exists in the database and fully clear the cache if it does', null, 'dibseasy.log');
             $messsage = $helper->__('There is error. Please contact store administrator for details');
             $helper->getCheckout()->addError($messsage);
             $this->_redirect('checkout/cart');
         }
+
         try {
 
             /** @var Dibs_EasyCheckout_Model_Api $api */
@@ -86,17 +96,27 @@ class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Ac
             $payment = $api->findPayment($paymentId);
 
             $isValidPayment = $dibsCheckout->validatePayment($quote, $payment);
-
-            if ($isValidPayment){
+            if ($isValidPayment) {
                 $dibsCheckout->createOrder($quote, $payment);
+            } else {
+
+                $helper->getCheckout()->addError("The payment data and order data doesn't appear to match, please try again");
+                $quote->setDibsEasyPaymentId(null)
+                    ->setDibsEasyGrandTotal(null)
+                    ->save();
+                return $this->_redirect('checkout/cart');
             }
 
-        } catch (Exception $e){
+        } catch (Exception $e) {
             $messsage = $helper->__('There is error. Please contact store administrator for details');
             Mage::logException($e);
             Mage::helper('checkout')->sendPaymentFailedEmail($quote, $messsage);
             $helper->getCheckout()->addException($e, $messsage);
+            $quote->setDibsEasyPaymentId(null)
+                ->setDibsEasyGrandTotal(null)
+                ->save();
             $this->_redirect('checkout/cart');
+            return;
         }
 
         $this->_redirect('checkout/onepage/success', array('_secure'=>true));

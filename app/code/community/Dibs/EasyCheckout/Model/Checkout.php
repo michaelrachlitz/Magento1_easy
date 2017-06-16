@@ -33,6 +33,14 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
      */
     public function createPaymentId(Mage_Sales_Model_Quote $quote)
     {
+        if (!$quote->isVirtual()) {
+            if ($quote->getShippingAddress()->getShippingMethod() != \Dibs_EasyCheckout_Helper_Data::DIBS_EASY_SHIPPING_METHOD) {
+                $this->_setShippingMethod($quote);
+                $quote->save();
+                $quote->collectTotals();
+            }
+        }
+
         $result = null;
         /** @var Dibs_EasyCheckout_Model_Api $api */
         $api = Mage::getModel('dibs_easycheckout/api');
@@ -80,12 +88,14 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     {
         $quote->collectTotals();
         if ($quote->getCustomerId()) {
-            $customer = $this->loadCustomer($quote->getCustomerId());
+            $customer = $this->_loadCustomer($quote->getCustomerId());
             $quote->setCustomer($customer);
             $quote->setCheckoutMethod(Mage_Checkout_Model_Type_Onepage::METHOD_CUSTOMER);
         } else {
             $quote->setCheckoutMethod(Mage_Checkout_Model_Type_Onepage::METHOD_GUEST);
         }
+
+        $quote->setDibsEasyIsCreatingPayment(true);
 
         $this->_prepareQuoteBillingAddress($quote,$payment);
         $this->_prepareQuoteShippingAddress($quote, $payment);
@@ -98,7 +108,6 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
             $quote->setCustomerIsGuest(1);
             $quote->setCustomerGroupId(Mage_Customer_Model_Group::NOT_LOGGED_IN_ID);
         }
-
 
         Mage::dispatchEvent('dibs_easy_checkout_quote_before_create_order', array(
             'quote' => $quote,
@@ -117,12 +126,15 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         // Update Order
         /** @var $order Mage_Sales_Model_Order */
         $oderStatus = $this->_getHelper()->getNewOrderStatus();
-        $order->setStatus($oderStatus);
+        $order->setStatus($oderStatus)->setState('processing');
 
         // Set Order Dibs Payment Id
         $order->setDibsEasyPaymentId($quote->getDibsEasyPaymentId());
 
         $order->save();
+
+        $quote->setIsActive(false)
+            ->save();
 
         /** @var Dibs_EasyCheckout_Helper_Data $helper */
         $helper = Mage::helper('dibs_easycheckout');
@@ -215,7 +227,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
 
             $shippingAddress->setCollectShippingRates(true)
                 ->collectShippingRates()
-                ->setShippingMethod('dibs_easy_freeshipping_dibs_easy_freeshipping');
+                ->setShippingMethod(\Dibs_EasyCheckout_Helper_Data::DIBS_EASY_SHIPPING_METHOD);
         }
 
     }
@@ -262,7 +274,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     /**
      * @param $id
      *
-     * @return Mage_Core_Model_Abstract
+     * @return Mage_Customer_Model_Customer
      */
     protected function _loadCustomer($id)
     {
@@ -273,7 +285,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
      * @param $id
      * @param string $key
      *
-     * @return Mage_Core_Model_Abstract
+     * @return Mage_Sales_Model_Order
      */
     protected function _loadOrderByKey($id, $key = 'quote_id')
     {

@@ -23,30 +23,20 @@
  * @copyright   Copyright (c) 2009-2017 Vaimo Group
  */
 
-class Dibs_EasyCheckout_Block_Checkout_Link extends Mage_Core_Block_Template
-{
-    /**
-     * @return string
-     */
-    public function getCheckoutUrl()
-    {
-        return $this->getUrl('dibseasy/checkout');
-    }
+$installer = $this;
+$installer->startSetup();
 
+$path = 'payment/dibs_easy_checkout/active';
 
-    /**
-     * @return mixed
-     */
-    public function isEasyCheckoutAvailable()
-    {
-        return $this->getDibsHelper()->isEasyCheckoutAvailable();
-    }
+/**
+ * Corrects bug where DIBS easy would appear in
+ * onepage checkout which it shouldn't
+ */
+Mage::getConfig()->saveConfig($path, '0', 'default', 0);
 
-    /**
-     * @return Dibs_EasyCheckout_Helper_Data
-     */
-    protected function getDibsHelper()
-    {
-        return $this->helper('dibs_easycheckout');
-    }
+$stores = Mage::getResourceModel('core/store_collection');
+foreach ($stores as $store) {
+    Mage::getConfig()->saveConfig($path, '0', 'stores', $store->getId());
 }
+
+$installer->endSetup();

@@ -38,12 +38,12 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
 
     const DEFAULT_CHECKOUT_LANGUAGE = 'en-GB';
 
+    const DIBS_EASY_SHIPPING_METHOD = 'dibs_easy_freeshipping_dibs_easy_freeshipping';
+
     // For now we support only SEK
     protected $_supportedCurrencies = ['SEK'];
 
     protected $_supportedLanguages = ['en-GB','sv-SE'];
-
-
 
     /**
      * @return bool
@@ -52,12 +52,19 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $result = false;
 
-        $checkoutEnabled = (bool)(int)Mage::getStoreConfig('payment/dibs_easy_checkout/enabled');
+        $checkoutEnabled = (bool)(int) Mage::getStoreConfig('payment/dibs_easy_checkout/enabled');
         $quoteCurrency = $this->getQuote()->getQuoteCurrencyCode();
         $quoteCurrencySupported = in_array($quoteCurrency,$this->_supportedCurrencies);
 
         if ($checkoutEnabled && $quoteCurrencySupported){
             $result = true;
+        }
+
+        if (!$this->getQuote()->isVirtual()) {
+            $rateIsActive = Mage::getStoreConfig('carriers/dibs_easy_free_shipping/active');
+            if (!$rateIsActive) {
+                return false;
+            }
         }
 
         return $result;

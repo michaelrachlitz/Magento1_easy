@@ -79,13 +79,10 @@ class Dibs_EasyPayment_Api_Client {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHeaders());
 
-
         if ('POST' === $method && count($data) > 0) {
             curl_setopt( $ch, CURLOPT_POST, true );
             curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode($data));
         }
-
-
 
         $response = $this->prepareResponse($ch);
 
@@ -94,15 +91,15 @@ class Dibs_EasyPayment_Api_Client {
 
     protected function prepareResponse($ch)
     {
-        $result = curl_exec( $ch );
-        $code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+        $result = curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE );
         $response = new Dibs_EasyPayment_Api_Response($code, $result);
         if ($result === false) {
             $response->setResponse(json_encode(['message'=> curl_error($ch)]));
         }
 
         if ( empty($result) && $code != 200) {
-            $response->setResponse(json_encode(['message'=> 'CURL Error ',$code]));
+            $response->setResponse(json_encode(['message'=> 'CURL Error ', $code]));
         }
 
         if (in_array($code,[200,201,204])){
@@ -119,12 +116,7 @@ class Dibs_EasyPayment_Api_Client {
             throw new Dibs_EasyPayment_Api_Exception_Response($message, 500);
         }
 
-        return$response;
+        return $response;
     }
-
-
-
-
-
 
 }

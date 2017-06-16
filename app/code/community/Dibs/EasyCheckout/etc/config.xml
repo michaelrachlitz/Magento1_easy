@@ -28,7 +28,7 @@
 <config>
     <modules>
         <Dibs_EasyCheckout>
-            <version>0.1.0</version>
+            <version>0.9.0</version>
             <name>DIBS Easy Checkout Module</name>
             <depends>
                 <Mage_Checkout/>
@@ -88,7 +88,6 @@
             <sales_model_service_quote_submit_before>
                 <observers>
                     <klarna>
-                        <type>singleton</type>
                         <class>dibs_easycheckout/observer</class>
                         <method>saveOrderDibsEasyPaymentId</method>
                     </klarna>
@@ -97,7 +96,6 @@
             <sales_quote_save_before>
                 <observers>
                     <dibs_easycheckout>
-                        <type>singleton</type>
                         <class>dibs_easycheckout/observer</class>
                         <method>validateDibsEasyPaymentId</method>
                     </dibs_easycheckout>
@@ -106,7 +104,6 @@
             <sales_order_payment_capture>
                 <observers>
                     <dibs_easycheckout>
-                        <type>singleton</type>
                         <class>dibs_easycheckout/observer</class>
                         <method>setInvoiceToPaymentObject</method>
                     </dibs_easycheckout>
@@ -140,6 +137,16 @@
                 </dibs_easycheckout>
             </updates>
         </layout>
+        <events>
+            <payment_method_is_active>
+                <observers>
+                    <dibs_easycheckout>
+                        <class>dibs_easycheckout/observer</class>
+                        <method>setPaymentMethodAvailable</method>
+                    </dibs_easycheckout>
+                </observers>
+            </payment_method_is_active>
+        </events>
     </frontend>
     <adminhtml>
         <translate>
@@ -167,7 +174,7 @@
     <default>
         <carriers>
             <dibs_easy_free_shipping>
-                <active>0</active>
+                <active>1</active>
                 <model>dibs_easycheckout/carrier_freeshipping</model>
                 <title>Dibs Easy Checkout Free Shipping</title>
                 <sort_order>10</sort_order>

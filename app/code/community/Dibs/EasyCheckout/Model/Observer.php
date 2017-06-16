@@ -65,4 +65,19 @@ class Dibs_EasyCheckout_Model_Observer extends Mage_Core_Model_Abstract
         return $this;
     }
 
+    public function setPaymentMethodAvailable(Varien_Event_Observer $observer)
+    {
+        $methodInstance = $observer->getEvent()->getMethodInstance();
+        /** @var Mage_Sales_Model_Quote $quote */
+        $quote = $observer->getEvent()->getQuote();
+        if ($methodInstance instanceof \Dibs_EasyCheckout_Model_Payment_Checkout && $quote->getDibsEasyIsCreatingPayment()) {
+            /** @var \StdClass $result */
+            $result = $observer->getEvent()->getResult();
+            /** @var Dibs_EasyCheckout_Helper_Data $helper */
+            $helper = Mage::helper('dibs_easycheckout');
+            $result->isAvailable = $helper->isEasyCheckoutAvailable();
+            $result->isDeniedInConfig = !$result->isAvailable;
+        }
+    }
+
 }
