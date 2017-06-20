@@ -32,7 +32,7 @@ class Dibs_EasyCheckout_Model_Api_Payment_Consumer_PrivatePerson extends Varien_
     public function getTelephone()
     {
         $result = null;
-        $phoneNumberArray = $this->getPhoneNumber();
+        $phoneNumberArray = $this->getData('phoneNumber');
         if (!empty($phoneNumberArray)){
             $phoneNumber = $phoneNumberArray['prefix'] . $phoneNumberArray['number'];
             $result = preg_replace("/[^0-9]/", '', $phoneNumber);
