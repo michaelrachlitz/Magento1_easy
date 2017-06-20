@@ -133,6 +133,8 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
 
         $order->save();
 
+        $order->sendNewOrderEmail();
+
         $quote->setIsActive(false)
             ->save();
 
