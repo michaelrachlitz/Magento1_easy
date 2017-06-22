@@ -161,6 +161,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         if (empty($paymentBillingAddress->getData())){
             $paymentBillingAddress = $payment->getShippingAddress();
         }
+
         $billingAddress = $quote->getBillingAddress();
         $billingRegionCode  = $paymentBillingAddress->getData('postalCode');
         $billingAddress->setFirstname($payment->getPrivatePerson()->getData('firstName'));
@@ -168,14 +169,14 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         $billingAddress->setStreet($paymentBillingAddress->getStreetsArray());
         $billingAddress->setPostcode($paymentBillingAddress->getData('postalCode'));
         $billingAddress->setCity($paymentBillingAddress->getData('city'));
-        $billingAddress->setCountryId($paymentBillingAddress->getData('country'));
+        $billingAddress->setCountryId($this->getCountryId($paymentBillingAddress->getData('country')));
         $billingAddress->setEmail($payment->getPrivatePerson()->getData('email'));
         $billingAddress->setTelephone($payment->getPrivatePerson()->getTelephone());
         $billingAddress->setCompany($payment->getCompany()->getData('name'));
 
         if ($billingRegionCode) {
-            $billingRegionId = Mage::getModel('directory/region')->loadByCode($billingRegionCode, $billingAddress->getCountryId());
-            $billingAddress->setRegionId($billingRegionId->getId());
+            $billingRegionId =$this->getRegionId($billingAddress->getCountryId(), $billingRegionCode);
+            $billingAddress->setRegionId($billingRegionId);
         }
 
         $billingAddress->setShouldIgnoreValidation(true);
@@ -189,24 +190,57 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
      */
     protected function _prepareQuoteShippingAddress(Mage_Sales_Model_Quote $quote,Dibs_EasyCheckout_Model_Api_Payment $payment)
     {
+
         $shippingAddress = $quote->getShippingAddress();
         $shippingAddress->setFirstname($payment->getPrivatePerson()->getData('firstName'));
         $shippingAddress->setLastname($payment->getPrivatePerson()->getData('lastName'));
         $shippingAddress->setStreet($payment->getShippingAddress()->getStreetsArray());
         $shippingAddress->setPostcode($payment->getShippingAddress()->getData('postalCode'));
         $shippingAddress->setCity($payment->getShippingAddress()->getData('city'));
-        $shippingAddress->setCountryId($payment->getShippingAddress()->getData('country'));
+        $shippingAddress->setCountryId($this->getCountryId($payment->getShippingAddress()->getData('country')));
         $shippingAddress->setEmail($payment->getPrivatePerson()->getData('email'));
         $shippingAddress->setTelephone($payment->getPrivatePerson()->getTelephone());
         $shippingAddress->setCompany($payment->getCompany()->getData('name'));
         $shippingRegionCode = $payment->getShippingAddress()->getData('postalCode');
 
         if ($shippingRegionCode) {
-            $shippingRegionId = Mage::getModel('directory/region')->loadByCode($shippingRegionCode, $shippingAddress->getCountryId());
-            $shippingAddress->setRegionId($shippingRegionId->getId());
+            $shippingRegionId =$this->getRegionId($shippingAddress->getCountryId(), $shippingRegionCode);
+            $shippingAddress->setRegionId($shippingRegionId);
         }
 
         $shippingAddress->setShouldIgnoreValidation(true);
+    }
+
+    /**
+     * @param string $countryCode
+     *
+     * @return null
+     */
+    protected function getCountryId($countryCode = '')
+    {
+        $result = null;
+        if (!empty($countryCode)){
+            $result = Mage::getModel('directory/country')->loadByCode($countryCode)->getId();
+        }
+
+        return $result;
+
+    }
+
+    /**
+     * @param string $countryId
+     * @param string $regionCode
+     *
+     * @return null
+     */
+    protected function getRegionId($countryId = '', $regionCode = '')
+    {
+        $result = null;
+        if (!empty($countryId) && !empty($regionCode)){
+            $result = Mage::getModel('directory/region')->loadByCode($regionCode, $countryId)->getId();
+        }
+
+        return $result;
     }
 
     /**
@@ -231,6 +265,8 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
                 ->collectShippingRates()
                 ->setShippingMethod(\Dibs_EasyCheckout_Helper_Data::DIBS_EASY_SHIPPING_METHOD);
         }
+
+        $quote->collectTotals();
 
     }
 

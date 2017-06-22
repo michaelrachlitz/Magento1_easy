@@ -33,6 +33,8 @@ class Dibs_EasyCheckout_Model_Payment_Checkout extends Mage_Payment_Model_Method
     protected $_canRefund                   = true;
     protected $_canRefundInvoicePartial     = true;
 
+    protected $_infoBlockType = 'dibs_easycheckout/payment_info';
+
     /**
      * @param Varien_Object $payment
      * @param float $amount
