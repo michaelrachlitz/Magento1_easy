@@ -153,7 +153,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
     {
         $refundOrderItems = $this->_getCreditMemoItems($creditmemo);
         $params = [
-            'amount' => $this->_getDibsIntVal($amount),
+            'amount' => $this->getDibsIntVal($amount),
             'orderItems' => $refundOrderItems
         ];
 
@@ -170,7 +170,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
     {
         $invoiceItems = $this->_getInvoiceItems($invoice);
         $params = [
-            'amount' => $this->_getDibsIntVal($amount),
+            'amount' => $this->getDibsIntVal($amount),
             'orderItems' => $invoiceItems
         ];
 
@@ -217,6 +217,15 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
 
         }
 
+        $shippingAmount = (double)$quote->getShippingAddress()->getShippingInclTax();
+
+        if ($shippingAmount > 0){
+            $carrierReference = $quote->getShippingAddress()->getShippingMethod();
+            $carrierName = $quote->getShippingAddress()->getShippingDescription();
+            $shippingAddress = $quote->getShippingAddress();
+            $result[] = $this->_getShippingLineItem($shippingAddress, $carrierReference, $carrierName);
+        }
+
         return $result;
     }
 
@@ -225,10 +234,10 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      *
      * @return array
      */
-    protected function _getCreditMemoItems(Mage_Sales_Model_Order_Creditmemo $invoice)
+    protected function _getCreditMemoItems(Mage_Sales_Model_Order_Creditmemo $creditmemo)
     {
         $result = [];
-        $items = $invoice->getAllItems();
+        $items = $creditmemo->getAllItems();
         /** @var Mage_Sales_Model_Order_Creditmemo_Item $item */
         foreach ($items as $item){
             if ($this->_isNotChargeable($item->getOrderItem())){
@@ -236,6 +245,14 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
             }
             $result[] = $this->_getOrderLineItem($item);
 
+        }
+
+        $shippingAmount = (double)$creditmemo->getShippingInclTax();
+
+        if ($shippingAmount > 0){
+            $carrierReference = $creditmemo->getOrder()->getShippingMethod();
+            $carrierName = $creditmemo->getOrder()->getShippingDescription();
+            $result[] = $this->_getShippingLineItem($creditmemo, $carrierReference, $carrierName);
         }
 
         return $result;
@@ -256,7 +273,14 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
                 continue;
             }
             $result[] = $this->_getOrderLineItem($item);
+        }
 
+        $shippingAmount = (double)$invoice->getShippingInclTax();
+
+        if ($shippingAmount > 0){
+            $carrierReference = $invoice->getOrder()->getShippingMethod();
+            $carrierName = $invoice->getOrder()->getShippingDescription();
+            $result[] = $this->_getShippingLineItem($invoice, $carrierReference, $carrierName);
         }
 
         return $result;
@@ -274,11 +298,29 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
             'name'              =>  $item->getName(),
             'quantity'          =>  (int)$item->getQty(),
             'unit'              =>  1,
-            'unitPrice'         =>  $this->_getDibsIntVal($item->getPrice()),
-            'taxRate'           =>  $this->_getDibsIntVal($item->getTaxPercent()),
+            'unitPrice'         =>  $this->getDibsIntVal($item->getPrice()),
+            'taxRate'           =>  $this->getDibsIntVal($item->getTaxPercent()),
             'taxAmount'         =>  $this->_getItemTaxAmount($item),
             'grossTotalAmount'  =>  $this->_getItemGrossTotalAmount($item),
             'netTotalAmount'    =>  $this->_getItemNetTotalAmount($item) ,
+        ];
+
+        return $result;
+    }
+
+    protected function _getShippingLineItem($shippingInfo, $carrierReference, $carrierName)
+    {
+
+        $result = [
+            'reference'         =>  $carrierReference,
+            'name'              =>  $carrierName,
+            'quantity'          =>  1,
+            'unit'              =>  1,
+            'unitPrice'         =>  $this->getDibsIntVal($shippingInfo->getShippingAmount()),
+            'taxRate'           =>  0,
+            'taxAmount'         =>  $this->getDibsIntVal($shippingInfo->getShippingTaxAmount() + $shippingInfo->getShippingHiddenTaxAmount()),
+            'grossTotalAmount'  =>  $this->getDibsIntVal($shippingInfo->getShippingInclTax()),
+            'netTotalAmount'    =>  $this->getDibsIntVal($shippingInfo->getShippingAmount()) ,
         ];
 
         return $result;
@@ -291,7 +333,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     public function getDibsQuoteGrandTotal(Mage_Sales_Model_Quote $quote)
     {
-        return $this->_getDibsIntVal($quote->getGrandTotal());
+        return $this->getDibsIntVal($quote->getGrandTotal());
     }
 
     /**
@@ -322,7 +364,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
     protected function _getItemTaxAmount(Mage_Core_Model_Abstract $item)
     {
         $itemTax = (double)$item->getTaxAmount() + (double)$item->getHiddenTaxAmount();
-        $result = $this->_getDibsIntVal($itemTax);
+        $result = $this->getDibsIntVal($itemTax);
 
         return $result;
     }
@@ -335,7 +377,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
     protected function _getItemGrossTotalAmount(Mage_Core_Model_Abstract $item)
     {
         $itemGrossTotal = (double)$item->getRowTotalInclTax() - (double)$item->getDiscountAmount();
-        $result = $this->_getDibsIntVal($itemGrossTotal);
+        $result = $this->getDibsIntVal($itemGrossTotal);
 
         return $result;
     }
@@ -349,7 +391,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
     {
         $netDiscount = (double)$item->getDiscountAmount() - (double)$item->getHiddenTaxAmount();
         $itemNetTotal = (double)$item->getRowTotalInclTax() - (double)$item->getTaxAmount() - $netDiscount;
-        $result = $this->_getDibsIntVal($itemNetTotal);
+        $result = $this->getDibsIntVal($itemNetTotal);
 
         return $result;
     }
@@ -359,10 +401,21 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      *
      * @return int
      */
-    protected function _getDibsIntVal($value)
+    public function getDibsIntVal($value)
     {
         $result = (double)$value * 100;
         return (int)$result;
+    }
+
+    /**
+     * @param $value
+     *
+     * @return float
+     */
+    public function convertDibsValToRegular($value)
+    {
+        $result = $value / 100;
+        return (double)$result;
     }
 
     /**

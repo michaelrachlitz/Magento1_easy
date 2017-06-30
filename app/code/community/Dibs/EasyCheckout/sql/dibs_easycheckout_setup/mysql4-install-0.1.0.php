@@ -31,8 +31,9 @@ $connection = $installer->getConnection();
 $orderTable = $installer->getTable('sales_flat_order');
 $connection->addColumn($orderTable, 'dibs_easy_payment_id',
     array(
-        'type'=>Varien_Db_Ddl_Table::TYPE_TEXT,
-        'length' => '255',
+        'type'=>Varien_Db_Ddl_Table::TYPE_DECIMAL,
+        'scale'     => 4,
+        'precision' => 12,
         'unsigned' => true,
         'nullable' => true,
         'default' => NULL,

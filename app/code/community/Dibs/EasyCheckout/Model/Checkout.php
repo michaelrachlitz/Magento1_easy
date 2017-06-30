@@ -34,10 +34,12 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     public function createPaymentId(Mage_Sales_Model_Quote $quote)
     {
         if (!$quote->isVirtual()) {
-            if ($quote->getShippingAddress()->getShippingMethod() != \Dibs_EasyCheckout_Helper_Data::DIBS_EASY_SHIPPING_METHOD) {
+            $configuredShippingRage = $this->_findShippingRate($quote->getShippingAddress());
+            if (!$configuredShippingRage ||
+                $quote->getShippingAddress()->getShippingMethod() != $configuredShippingRage->getCode()) {
                 $this->_setShippingMethod($quote);
                 $quote->save();
-                $quote->collectTotals();
+
             }
         }
 
@@ -102,6 +104,20 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         $this->_setPaymentMethod($quote);
         $this->_setShippingMethod($quote);
 
+        /** @var Dibs_EasyCheckout_Model_Api $api */
+        $api = Mage::getModel('dibs_easycheckout/api');
+        $quoteDibsTotal = $api->getDibsIntVal($quote->getGrandTotal());
+        $reservedDibsAmount = $payment->getSummary()->getData('reservedAmount');
+
+        if ($quoteDibsTotal > $reservedDibsAmount) {
+            $reservedDibsAmountRegular = $api->convertDibsValToRegular($reservedDibsAmount);
+            $helper = $this->_getHelper();
+            $test = 'Reserved payment amount is not correct. Reserved amount %s - order amount %s';
+            $message = $helper->__($test,$reservedDibsAmountRegular, $quote->getGrandTotal());
+            throw new Dibs_EasyCheckout_Model_Exception($message);
+        }
+
+        $quote->setDibsEasyGrandTotal($quote->getGrandTotal());
 
         if ($quote->getCheckoutMethod() == Mage_Checkout_Model_Type_Onepage::METHOD_GUEST){
             $this->_prepareGuestCustomerQuote($quote);
@@ -259,15 +275,50 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     {
         if (!$quote->getIsVirtual() && $shippingAddress = $quote->getShippingAddress()) {
             $shippingAddress = $quote->getShippingAddress();
-            $shippingAddress->setFreeShipping(true);
+
+            if (empty($shippingAddress->getCountryId())){
+                $defaultCountryCode = Mage::getStoreConfig('general/country/default');
+                /** @var Mage_Directory_Model_Country $country */
+                $country = Mage::getModel('directory/country')->loadByCode($defaultCountryCode);
+
+                $shippingAddress->setCountryId($country->getId());
+            }
 
             $shippingAddress->setCollectShippingRates(true)
-                ->collectShippingRates()
-                ->setShippingMethod(\Dibs_EasyCheckout_Helper_Data::DIBS_EASY_SHIPPING_METHOD);
-        }
+                ->collectShippingRates();
 
+            $shippingRate = $this->_findShippingRate($shippingAddress);
+
+            if (!$shippingRate){
+                $helper = $this->_getHelper();
+                $message = 'There is error. Please contact store administrator for details';
+                throw new Dibs_EasyCheckout_Model_Exception($helper->__($message));
+            }
+
+            $shippingAddress->setShippingMethod($shippingRate->getCode());
+        }
+        $quote->setTotalsCollectedFlag(false);
         $quote->collectTotals();
 
+    }
+
+    /**
+     * @param Mage_Sales_Model_Quote_Address $shippingAddress
+     *
+     * @return Mage_Sales_Model_Quote_Address_Rate|null
+     */
+    protected function _findShippingRate(Mage_Sales_Model_Quote_Address $shippingAddress)
+    {
+        $result = null;
+        $configuredShippingCarrier = $this->_getHelper()->getShippingCarrierId();
+        /** @var Mage_Sales_Model_Quote_Address_Rate $rate */
+        foreach ($shippingAddress->getShippingRatesCollection() as $rate) {
+            if ($rate->getCarrier() == $configuredShippingCarrier){
+                $result = $rate;
+            }
+        }
+
+        return $result;
     }
 
     /**
@@ -302,7 +353,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     }
 
     /**
-     * @return Mage_Core_Helper_Abstract
+     * @return Dibs_EasyCheckout_Helper_Data
      */
     protected function _getHelper()
     {

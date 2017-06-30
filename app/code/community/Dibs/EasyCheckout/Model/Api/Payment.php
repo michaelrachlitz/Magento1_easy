@@ -143,4 +143,12 @@ class Dibs_EasyCheckout_Model_Api_Payment
        return $this->refunds;
     }
 
+    /**
+     * @return Varien_Object
+     */
+    public function getSummary()
+    {
+        return $this->summary;
+    }
+
 }

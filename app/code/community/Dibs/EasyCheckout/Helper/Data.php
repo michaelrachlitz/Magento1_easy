@@ -60,12 +60,6 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
             $result = true;
         }
 
-        if (!$this->getQuote()->isVirtual()) {
-            $rateIsActive = Mage::getStoreConfig('carriers/dibs_easy_free_shipping/active');
-            if (!$rateIsActive) {
-                return false;
-            }
-        }
 
         return $result;
     }
@@ -121,17 +115,9 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
     /**
      * @return mixed
      */
-    public function getShippingCarrierTitle()
+    public function getShippingCarrierId()
     {
-        return Mage::getStoreConfig('payment/dibs_easy_checkout/carrier_title');
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getShippingCarrierName()
-    {
-        return Mage::getStoreConfig('payment/dibs_easy_checkout/carrier_name');
+        return Mage::getStoreConfig('payment/dibs_easy_checkout/carrier');
     }
 
     /**

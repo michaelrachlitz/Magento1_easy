@@ -23,40 +23,37 @@
  * @copyright   Copyright (c) 2009-2017 Vaimo Group
  */
 
-class Dibs_EasyCheckout_Block_Adminhtml_Sales_Order_Creditmemo_Totals extends Mage_Adminhtml_Block_Sales_Order_Creditmemo_Totals {
+class Dibs_EasyCheckout_Model_System_Config_Source_Carrier
+{
 
-    /**
-     * @return Mage_Sales_Block_Order_Totals
-     */
-    protected function _beforeToHtml()
+    public function toOptionArray()
     {
-        $isDibsEasyCheckoutPayment = $this->isDibsEasyCheckoutPayment();
-        if ($isDibsEasyCheckoutPayment){
-            $this->removeAdjustmentsBlock();
+        $options = [
+            [
+                'value' => 'dibs_easy_free_shipping',
+                'label' => Mage::getStoreConfig('carriers/dibs_easy_free_shipping/title')
+            ],
+        ];
+
+        $flatRateActive = $this->_isFlatrateActive();
+
+        if ($flatRateActive){
+            $options[] = [
+                'value' => 'flatrate',
+                'label' => Mage::getStoreConfig('carriers/flatrate/title')
+            ];
         }
-        return parent::_beforeToHtml();
-    }
 
-    /**
-     * Remove Adjustments Block
-     */
-    protected function removeAdjustmentsBlock()
-    {
-        $this->unsetChild('adjustments');
+        return $options;
     }
 
     /**
      * @return bool
      */
-    protected function isDibsEasyCheckoutPayment()
+    protected function _isFlatrateActive()
     {
-        $result = false;
-        $paymentMethod = $this->getCreditmemo()->getOrder()->getPayment()->getMethod();
-        if ($paymentMethod == Dibs_EasyCheckout_Helper_Data::PAYMENT_CHECKOUT_METHOD) {
-            $result = true;
-        }
-
-        return $result;
+        $active = Mage::getStoreConfig('carriers/flatrate/active');
+        return $active==1 || $active=='true';
     }
 
 }

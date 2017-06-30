@@ -57,10 +57,10 @@ class Dibs_EasyCheckout_Model_Carrier_Freeshipping
 
         $method = Mage::getModel('shipping/rate_result_method');
 
-        $method->setCarrier('dibs_easy_freeshipping');
+        $method->setCarrier('dibs_easy_free_shipping');
         $method->setCarrierTitle($this->getConfigData('title'));
 
-        $method->setMethod('dibs_easy_freeshipping');
+        $method->setMethod('dibs_easy_free_shipping');
         $method->setMethodTitle($this->getConfigData('name'));
 
         $method->setPrice('0.00');

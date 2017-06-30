@@ -1,5 +1,17 @@
 <?xml version="1.0"?>
 <layout version="0.1.0">
+    <default>
+        <reference name="head">
+            <action method="addItem"><type>skin_css</type><name>css/dibs/easy_checkout.css</name><params/></action>
+        </reference>
+        <reference name="topCart.extra_actions">
+            <block ifconfig="checkout/options/dibs_easy_checkout_enabled" type="dibs_easycheckout/checkout_link" name="dibs_easy.checkout.top_cart.shortcut" template="dibs/easycheckout/link.phtml"/>
+        </reference>
+        <reference name="cart_sidebar.extra_actions">
+            <block ifconfig="checkout/options/dibs_easy_checkout_enabled" type="dibs_easycheckout/checkout_link" name="dibs_easy.checkout.cart_sidebar.shortcut" template="dibs/easycheckout/link.phtml"/>
+        </reference>
+    </default>
+
     <checkout_cart_index>
         <reference name="checkout.cart.top_methods">
             <block ifconfig="checkout/options/dibs_easy_checkout_enabled" type="dibs_easycheckout/checkout_link"

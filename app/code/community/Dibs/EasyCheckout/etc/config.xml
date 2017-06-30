@@ -187,6 +187,7 @@
                 <title>Dibs Easy Checkout</title>
                 <model>dibs_easycheckout/payment_checkout</model>
                 <active>0</active>
+                <carrier>dibs_easy_free_shipping</carrier>
                 <sort_order>999</sort_order>
             </dibs_easy_checkout>
         </payment>
