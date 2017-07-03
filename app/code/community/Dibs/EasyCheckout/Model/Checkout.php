@@ -112,8 +112,8 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         if ($quoteDibsTotal > $reservedDibsAmount) {
             $reservedDibsAmountRegular = $api->convertDibsValToRegular($reservedDibsAmount);
             $helper = $this->_getHelper();
-            $test = 'Reserved payment amount is not correct. Reserved amount %s - order amount %s';
-            $message = $helper->__($test,$reservedDibsAmountRegular, $quote->getGrandTotal());
+            $errorText = 'Reserved payment amount is not correct. Reserved amount %s - order amount %s';
+            $message = $helper->__($errorText, $reservedDibsAmountRegular, $quote->getGrandTotal());
             throw new Dibs_EasyCheckout_Model_Exception($message);
         }
 
