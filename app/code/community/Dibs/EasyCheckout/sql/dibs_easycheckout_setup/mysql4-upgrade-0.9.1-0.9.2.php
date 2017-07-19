@@ -26,42 +26,28 @@
 $installer = $this;
 $installer->startSetup();
 
-$connection = $installer->getConnection();
+/** @var Mage_Sales_Model_Resource_Quote_Collection $quoteCollection */
+$quoteCollection = Mage::getModel('sales/quote')->getCollection();
+$quoteCollection->join(array('order'=> 'sales/order'),'order.quote_id=main_table.entity_id', array('order_id' =>'order.entity_id'));
+$quoteCollection->addFieldToFilter('main_table.dibs_easy_payment_id',array('notnull' => true));
 
-$orderTable = $installer->getTable('sales_flat_order');
-$connection->addColumn($orderTable, 'dibs_easy_payment_id',
-    array(
-        'type'=>Varien_Db_Ddl_Table::TYPE_TEXT,
-        'length' => '255',
-        'unsigned' => true,
-        'nullable' => true,
-        'default' => NULL,
-        'comment' => 'Dibs Easy Payment Id'
-    )
-);
+$items = $quoteCollection->getItems();
 
-$quoteTable = $installer->getTable('sales_flat_quote');
-$connection->addColumn($quoteTable, 'dibs_easy_payment_id',
-    array(
-        'type'=>Varien_Db_Ddl_Table::TYPE_TEXT,
-        'length' => '255',
-        'unsigned' => true,
-        'nullable' => true,
-        'default' => NULL,
-        'comment' => 'Dibs Easy Payment Id'
-    )
-);
+if (!empty($items)){
+    $orderPaymentIds = array();
+    foreach ($items as $item){
+        $orderPaymentIds[$item->getOrderId()] = $item->getDibsEasyPaymentId();
+    }
 
-$connection->addColumn($quoteTable, 'dibs_easy_grand_total',
-    array(
-        'type'=>Varien_Db_Ddl_Table::TYPE_DECIMAL,
-        'scale'     => 4,
-        'precision' => 12,
-        'length' => '255',
-        'unsigned' => true,
-        'nullable' => true,
-        'default' => NULL,
-        'comment' => 'Dibs Easy Grand Total'
-    )
-);
+    $orderCollection = Mage::getModel('sales/order')->getCollection()->addFieldToFilter('entity_id',array('in'=>array_keys($orderPaymentIds)));
+    $orders = $orderCollection->getItems();
+    foreach ($orders as $order){
+        if (isset($orderPaymentIds[$order->getId()])){
+            $order->setDibsEasyPaymentId($orderPaymentIds[$order->getId()]);
+            $order->save();
+        }
+    }
+}
+
 $installer->endSetup();
+
