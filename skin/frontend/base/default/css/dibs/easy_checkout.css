@@ -1,11 +1,22 @@
 button.btn-easy-checkout {
     background: #0072BC url(../../images/dibs/dibs-button-notext.png) no-repeat scroll right center / auto 40px;
     height: 33px;
-    padding-right: 80px;
+    padding: 7px 80px 7px 15px;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-radius: 10px;
 }
 button.btn-easy-checkout:hover {
     background: #0072BC url(../../images/dibs/dibs-button-notext.png) no-repeat scroll right center / auto 40px;
+}
+button.btn-easy-checkout span {
+    background-image: none;
+    background-color: transparent;
+    height: auto;
+    padding: 0;
+    font: inherit;
+}
+button.btn-easy-checkout span span {
+    padding: 0;
+    background-position: initial;
 }
