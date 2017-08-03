@@ -12,7 +12,7 @@ class Dibs_EasyPayment_Api_Client {
 
     CONST API_ENDPOINT = '/v1';
 
-    CONST API_LIVE_SERVER_URL = 'https://live.api.dibspayment.eu';
+    CONST API_LIVE_SERVER_URL = 'https://api.dibspayment.eu';
 
     CONST API_TEST_SERVER_URL = 'https://test.api.dibspayment.eu';
 
