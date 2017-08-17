@@ -22,14 +22,10 @@
  * @package     Dibs_EasyCheckout
  * @copyright   Copyright (c) 2009-2017 Vaimo Group
  */
-
 $installer = $this;
 $installer->startSetup();
-
 $connection = $installer->getConnection();
-
 $orderTable = $installer->getTable('sales_flat_order');
-
 $connection->modifyColumn($orderTable, 'dibs_easy_payment_id',
     array(
         'type'=>Varien_Db_Ddl_Table::TYPE_TEXT,
@@ -40,7 +36,6 @@ $connection->modifyColumn($orderTable, 'dibs_easy_payment_id',
         'comment' => 'Dibs Easy Payment Id'
     )
 );
-
 $quoteTable = $installer->getTable('sales_flat_quote');
 $connection->modifyColumn($quoteTable, 'dibs_easy_grand_total',
     array(
@@ -54,7 +49,4 @@ $connection->modifyColumn($quoteTable, 'dibs_easy_grand_total',
         'comment' => 'Dibs Easy Payment Id'
     )
 );
-
-
-
 $installer->endSetup();

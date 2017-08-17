@@ -58,7 +58,6 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
      */
     public function request($params)
     {
-
         $this->validateRequest($params);
         $apiEndPoint = $this->getApiEndpoint();
         $response = $this->getClient()->request($apiEndPoint, 'POST', $params);

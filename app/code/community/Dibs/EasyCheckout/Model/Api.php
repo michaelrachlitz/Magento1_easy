@@ -404,7 +404,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
     public function getDibsIntVal($value)
     {
         $result = (double)$value * 100;
-        return (int)$result;
+        return (string)$result;
     }
 
     /**
