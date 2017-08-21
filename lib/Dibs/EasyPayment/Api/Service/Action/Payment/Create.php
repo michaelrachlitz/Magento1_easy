@@ -102,7 +102,6 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
             throw new Dibs_EasyPayment_Api_Exception_Request('Empty order items ');
         }
 
-        $itemsTotal = 0;
         foreach ($params['order']['items'] as $orderItem){
             foreach ($this->orderItemFields as $orderItemField){
                 if (!isset($orderItem[$orderItemField])){
@@ -112,15 +111,7 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
             if (!empty($missedParams)){
                 throw new Dibs_EasyPayment_Api_Exception_Request('Empty order item fields '.implode(',',$missedParams));
             }
-
-            $itemsTotal += $orderItem['grossTotalAmount'];
         }
-
-        if ($itemsTotal != $params['order']['amount']) {
-            throw new Dibs_EasyPayment_Api_Exception_Request('Order amount not equal with items total amount');
-        }
-
-
 
         return $this;
 
