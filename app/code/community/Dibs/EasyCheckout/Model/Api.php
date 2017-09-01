@@ -295,7 +295,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
     {
         $result = [
             'reference'         =>  $item->getSku(),
-            'name'              =>  $item->getName(),
+            'name'              =>  htmlentities($item->getName(), ENT_QUOTES),
             'quantity'          =>  (int)$item->getQty(),
             'unit'              =>  1,
             'unitPrice'         =>  $this->getDibsIntVal($item->getPrice()),
@@ -313,7 +313,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
 
         $result = [
             'reference'         =>  $carrierReference,
-            'name'              =>  $carrierName,
+            'name'              =>  htmlentities($carrierName, ENT_QUOTES),
             'quantity'          =>  1,
             'unit'              =>  1,
             'unitPrice'         =>  $this->getDibsIntVal($shippingInfo->getShippingAmount()),
