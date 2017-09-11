@@ -293,9 +293,10 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     protected function _getOrderLineItem(Mage_Core_Model_Abstract $item)
     {
+        $name = preg_replace('/[^\w\d\s]*/','',$item->getName());
         $result = [
             'reference'         =>  $item->getSku(),
-            'name'              =>  htmlentities($item->getName(), ENT_QUOTES),
+            'name'              =>  $name,
             'quantity'          =>  (int)$item->getQty(),
             'unit'              =>  1,
             'unitPrice'         =>  $this->getDibsIntVal($item->getPrice()),
@@ -310,10 +311,10 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
 
     protected function _getShippingLineItem($shippingInfo, $carrierReference, $carrierName)
     {
-
+        $name = preg_replace('/[^\w\d\s]*/','',$carrierName);
         $result = [
             'reference'         =>  $carrierReference,
-            'name'              =>  htmlentities($carrierName, ENT_QUOTES),
+            'name'              =>  $name,
             'quantity'          =>  1,
             'unit'              =>  1,
             'unitPrice'         =>  $this->getDibsIntVal($shippingInfo->getShippingAmount()),
