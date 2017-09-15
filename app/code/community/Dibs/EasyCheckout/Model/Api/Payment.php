@@ -34,7 +34,7 @@ class Dibs_EasyCheckout_Model_Api_Payment
     /** @var Dibs_EasyCheckout_Model_Api_Payment_Consumer  */
     protected $consumer;
 
-    /** @var Varien_Object  */
+    /** @var Dibs_EasyCheckout_Model_Api_Payment_PaymentDetails  */
     protected $paymentDetails;
 
     /** @var Varien_Object  */
@@ -56,7 +56,7 @@ class Dibs_EasyCheckout_Model_Api_Payment
         $this->created = new DateTime($data['created']);
         $this->summary = new Varien_Object($data['summary']);
         $this->consumer = new Dibs_EasyCheckout_Model_Api_Payment_Consumer($data['consumer']);
-        $this->paymentDetails = new Varien_Object($data['paymentDetails']);
+        $this->paymentDetails = new Dibs_EasyCheckout_Model_Api_Payment_PaymentDetails($data['paymentDetails']);
         $this->orderDetails = new Varien_Object($data['orderDetails']);
         $this->checkout = new Varien_Object($data['checkout']);
         $this->refunds = isset($data['refunds']) ? new Varien_Object($data['refunds']) : null;
@@ -112,7 +112,7 @@ class Dibs_EasyCheckout_Model_Api_Payment
     }
 
     /**
-     * @return Varien_Object
+     * @return Dibs_EasyCheckout_Model_Api_Payment_PaymentDetails
      */
     public function getPaymentDetails()
     {
@@ -150,5 +150,7 @@ class Dibs_EasyCheckout_Model_Api_Payment
     {
         return $this->summary;
     }
+
+
 
 }

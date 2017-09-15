@@ -55,6 +55,12 @@ class Dibs_EasyCheckout_Model_Payment_Checkout extends Mage_Payment_Model_Method
 
         $chargeId = $this->processCharge($invoice, $amount);
 
+        $dibsPayment = $this->getDibsPayment($invoice);
+
+        $payment->setData('dibs_easy_cc_masked_pan',$dibsPayment->getPaymentDetails()->getMaskedPan());
+        $payment->setData('cc_last_4',$dibsPayment->getPaymentDetails()->getCcLast4());
+        $payment->setData('cc_exp_month',$dibsPayment->getPaymentDetails()->getCcExpMonth());
+        $payment->setData('cc_exp_year',$dibsPayment->getPaymentDetails()->getCcExpYear());
         $payment->setStatus(self::STATUS_APPROVED);
         $payment->setTransactionId($chargeId)
             ->setIsTransactionClosed(1);
@@ -132,6 +138,15 @@ class Dibs_EasyCheckout_Model_Payment_Checkout extends Mage_Payment_Model_Method
     public function getDibsEasyCheckoutHelper()
     {
         return Mage::helper('dibs_easycheckout');
+    }
+
+    protected function getDibsPayment($invoice)
+    {
+        /** @var Dibs_EasyCheckout_Model_Api $api */
+        $api = Mage::getModel('dibs_easycheckout/api');
+        $paymentId = $invoice->getOrder()->getDibsEasyPaymentId();
+        $dibsPayment = $api->findPayment($paymentId);
+        return $dibsPayment;
     }
 
 }

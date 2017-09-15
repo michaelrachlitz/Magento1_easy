@@ -101,7 +101,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
 
         $this->_prepareQuoteBillingAddress($quote,$payment);
         $this->_prepareQuoteShippingAddress($quote, $payment);
-        $this->_setPaymentMethod($quote);
+        $this->_setPaymentMethod($quote, $payment);
         $this->_setShippingMethod($quote);
 
         /** @var Dibs_EasyCheckout_Model_Api $api */
@@ -262,10 +262,15 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     /**
      * @param Mage_Sales_Model_Quote $quote
      */
-    protected function _setPaymentMethod(Mage_Sales_Model_Quote $quote)
+    protected function _setPaymentMethod(Mage_Sales_Model_Quote $quote, Dibs_EasyCheckout_Model_Api_Payment $dibsPayment)
     {
         $quotePayment = $quote->getPayment();
         $quotePayment->importData(array('method' => Dibs_EasyCheckout_Helper_Data::PAYMENT_CHECKOUT_METHOD));
+
+        $quotePayment->setData('dibs_easy_cc_masked_pan',$dibsPayment->getPaymentDetails()->getMaskedPan());
+        $quotePayment->setData('cc_last_4',$dibsPayment->getPaymentDetails()->getCcLast4());
+        $quotePayment->setData('cc_exp_month',$dibsPayment->getPaymentDetails()->getCcExpMonth());
+        $quotePayment->setData('cc_exp_year',$dibsPayment->getPaymentDetails()->getCcExpYear());
     }
 
     /**

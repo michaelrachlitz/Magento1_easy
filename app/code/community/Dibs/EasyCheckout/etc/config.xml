@@ -28,7 +28,7 @@
 <config>
     <modules>
         <Dibs_EasyCheckout>
-            <version>0.9.4</version>
+            <version>0.9.5</version>
             <name>DIBS Easy Checkout Module</name>
             <depends>
                 <Mage_Checkout/>
@@ -87,10 +87,10 @@
         <events>
             <sales_model_service_quote_submit_before>
                 <observers>
-                    <klarna>
+                    <dibs_easycheckout>
                         <class>dibs_easycheckout/observer</class>
-                        <method>saveOrderDibsEasyPaymentId</method>
-                    </klarna>
+                        <method>saveOrderDibsEasyPaymentDetails</method>
+                    </dibs_easycheckout>
                 </observers>
             </sales_model_service_quote_submit_before>
             <sales_quote_save_before>
