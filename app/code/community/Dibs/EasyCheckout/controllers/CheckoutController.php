@@ -26,6 +26,7 @@
 class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Action
 {
 
+    const DIBS_PAYMENT_ID_PARAM = 'paymentId';
     /**
      * Page where payment is initiated
      */
@@ -41,9 +42,26 @@ class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Ac
         /** @var Dibs_EasyCheckout_Model_Checkout $dibsCheckout */
         $dibsCheckout = Mage::getModel('dibs_easycheckout/checkout');
 
-        try {
+        $dibsPaymentId = $this->getRequest()->getParam(self::DIBS_PAYMENT_ID_PARAM);
 
-            $paymentId = $helper->getQuote()->getDibsEasyPaymentId();
+        $paymentId = $helper->getQuote()->getDibsEasyPaymentId();
+
+        if (!empty($dibsPaymentId) && !empty($paymentId) && $dibsPaymentId == $paymentId){
+            return $this->_redirect('dibseasy/checkout/validate');
+        }
+
+        if (!empty($dibsPaymentId) && !empty($paymentId) && $dibsPaymentId != $paymentId){
+
+            $quote = $helper->getQuote();
+            $quote->setDibsEasyPaymentId(null)
+                ->setDibsEasyGrandTotal(null)
+                ->save();
+            $message = $helper->__('There is error. Please contact store administrator for details');
+            $helper->getCheckout()->addError($message);
+            return $this->_redirect('checkout/cart');
+        }
+
+        try {
 
             if (empty($paymentId)){
                 $paymentId = $dibsCheckout->createPaymentId($helper->getQuote());
@@ -55,8 +73,8 @@ class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Ac
 
             Mage::logException($e);
 
-            $messsage = $helper->__('There is error. Please contact store administrator for details');
-            $helper->getCheckout()->addError($messsage);
+            $message = $helper->__('There is error. Please contact store administrator for details');
+            $helper->getCheckout()->addError($message);
             return $this->_redirect('checkout/cart');
         }
 
