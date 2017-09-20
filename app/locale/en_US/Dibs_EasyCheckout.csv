@@ -7,4 +7,5 @@
 "Order cannot be created, cart not valid","Order cannot be created, cart not valid"
 "Payment ID","Payment ID"
 "Masked Pan","Masked Pan"
+"Payment Type","Payment Type"
 "Reserved payment amount is not correct. Reserved amount %s - order amount %s","Reserved payment amount is not correct. Reserved amount %s - order amount %s

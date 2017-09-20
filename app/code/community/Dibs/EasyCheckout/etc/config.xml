@@ -28,7 +28,7 @@
 <config>
     <modules>
         <Dibs_EasyCheckout>
-            <version>0.9.5</version>
+            <version>0.9.6</version>
             <name>DIBS Easy Checkout Module</name>
             <depends>
                 <Mage_Checkout/>

@@ -60,6 +60,7 @@ class Dibs_EasyCheckout_Model_Observer extends Mage_Core_Model_Abstract
 
         $order->setData('dibs_easy_payment_id',$quote->getData('dibs_easy_payment_id'));
         $orderPayment->setData('dibs_easy_cc_masked_pan',$quotePayment->getData('dibs_easy_cc_masked_pan'));
+        $orderPayment->setData('dibs_easy_payment_type',$quotePayment->getData('dibs_easy_payment_type'));
         return $this;
     }
 

@@ -20,11 +20,22 @@ class Dibs_EasyCheckout_Block_Payment_Info extends Mage_Payment_Block_Info
         $order = $this->getInfo()->getOrder();
         if ($order){
             $paymentIdLabel = $this->__('Payment ID');
+            $paymentTypeLabel = $this->__('Payment Type');
             $maskedPanLabel = $this->__('Masked Pan');
-            $paymentData = [
-                $paymentIdLabel => $this->getInfo()->getOrder()->getData('dibs_easy_payment_id'),
-                $maskedPanLabel => $this->getInfo()->getData('dibs_easy_cc_masked_pan'),
-            ];
+
+            $paymentData = [];
+            $paymentData[$paymentIdLabel] = $this->getInfo()->getOrder()->getData('dibs_easy_payment_id');
+
+            $dibsEasyPaymentType = $this->getInfo()->getData('dibs_easy_payment_type');
+            if (!empty($dibsEasyPaymentType)){
+                $paymentData[$paymentTypeLabel] = $dibsEasyPaymentType;
+            }
+
+            $dibsEasyMaskedPan = $this->getInfo()->getData('dibs_easy_cc_masked_pan');
+            if (!empty($dibsEasyMaskedPan)){
+                $paymentData[$maskedPanLabel] = $dibsEasyMaskedPan;
+            }
+
             $transport->addData($paymentData);
 
         }

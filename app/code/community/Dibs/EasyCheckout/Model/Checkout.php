@@ -267,6 +267,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         $quotePayment = $quote->getPayment();
         $quotePayment->importData(array('method' => Dibs_EasyCheckout_Helper_Data::PAYMENT_CHECKOUT_METHOD));
 
+        $quotePayment->setData('dibs_easy_payment_type',$dibsPayment->getPaymentDetails()->getPaymentType());
         $quotePayment->setData('dibs_easy_cc_masked_pan',$dibsPayment->getPaymentDetails()->getMaskedPan());
         $quotePayment->setData('cc_last_4',$dibsPayment->getPaymentDetails()->getCcLast4());
         $quotePayment->setData('cc_exp_month',$dibsPayment->getPaymentDetails()->getCcExpMonth());
