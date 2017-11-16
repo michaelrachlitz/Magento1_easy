@@ -41,9 +41,9 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
     const DIBS_EASY_SHIPPING_METHOD = 'dibs_easy_freeshipping_dibs_easy_freeshipping';
 
     // For now we support only SEK
-    protected $_supportedCurrencies = ['SEK'];
+    protected $_supportedCurrencies = ['SEK','NOK','DKK'];
 
-    protected $_supportedLanguages = ['en-GB','sv-SE'];
+    protected $_supportedLanguages = ['en-GB','sv-SE','nb-NO','da-DK'];
 
     /**
      * @return bool
