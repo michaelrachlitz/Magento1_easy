@@ -1,4 +1,4 @@
-<?php
+    <?php
 /**
  * Copyright (c) 2009-2017 Vaimo Group
  *
@@ -174,7 +174,8 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     protected function _prepareQuoteBillingAddress(Mage_Sales_Model_Quote $quote,Dibs_EasyCheckout_Model_Api_Payment $payment)
     {
         $paymentBillingAddress = $payment->getBillingAddress();
-        if (empty($paymentBillingAddress->getData())){
+        $paymentBillingAddress = $paymentBillingAddress->getData();
+        if (empty($paymentBillingAddress)){
             $paymentBillingAddress = $payment->getShippingAddress();
         }
 
@@ -281,8 +282,8 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     {
         if (!$quote->getIsVirtual() && $shippingAddress = $quote->getShippingAddress()) {
             $shippingAddress = $quote->getShippingAddress();
-
-            if (empty($shippingAddress->getCountryId())){
+            $shippingCountryId = $shippingAddress->getCountryId();
+            if (empty($shippingCountryId)){
                 $defaultCountryCode = Mage::getStoreConfig('general/country/default');
                 /** @var Mage_Directory_Model_Country $country */
                 $country = Mage::getModel('directory/country')->loadByCode($defaultCountryCode);
