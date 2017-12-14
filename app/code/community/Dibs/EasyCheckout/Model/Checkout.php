@@ -1,4 +1,4 @@
-    <?php
+<?php
 /**
  * Copyright (c) 2009-2017 Vaimo Group
  *
