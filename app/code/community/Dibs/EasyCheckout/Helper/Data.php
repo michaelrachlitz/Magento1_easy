@@ -121,6 +121,14 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
     }
 
     /**
+     * @return mixed
+     */
+    public function getTermsAndConditionsUrl()
+    {
+        return Mage::getStoreConfig('payment/dibs_easy_checkout/terms_and_conditions_link');
+    }
+
+    /**
      * @return mixed|string
      */
     public function getCheckoutLanguage()

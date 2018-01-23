@@ -196,6 +196,12 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
             ]
         ];
 
+        $termsUrl = $this->_getDibsCheckoutHelper()->getTermsAndConditionsUrl();
+
+        if (!empty($termsUrl)){
+            $params['checkout']['termsUrl'] = $termsUrl;
+        }
+
         return $params;
     }
 

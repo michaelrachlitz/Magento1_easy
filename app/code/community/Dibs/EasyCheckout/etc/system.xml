@@ -91,6 +91,17 @@
                             <show_in_store>0</show_in_store>
                             <depends><enabled>1</enabled></depends>
                         </test_checkout_key>
+                        <terms_and_conditions_link translate="label">
+                            <label><![CDATA[Terms & Condition Link]]></label>
+                            <frontend_type>text</frontend_type>
+                            <validate>required-entry validate-url</validate>
+                            <sort_order>65</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>1</show_in_website>
+                            <show_in_store>0</show_in_store>
+                            <depends><enabled>1</enabled></depends>
+                            <comment><![CDATA[Specify URL]]></comment>
+                        </terms_and_conditions_link>
                         <new_order_status translate="label">
                             <label>New order status</label>
                             <frontend_type>select</frontend_type>
