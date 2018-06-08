@@ -1,28 +1,8 @@
 <?php
-/**
- * Copyright (c) 2009-2017 Vaimo Group
- *
- * Vaimo reserves all rights in the Program as delivered. The Program
- * or any portion thereof may not be reproduced in any form whatsoever without
- * the written consent of Vaimo, except as provided by licence. A licence
- * under Vaimo's rights in the Program may be available directly from
- * Vaimo.
- *
- * Disclaimer:
- * THIS NOTICE MAY NOT BE REMOVED FROM THE PROGRAM BY ANY USER THEREOF.
- * THE PROGRAM IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE PROGRAM OR THE USE OR OTHER DEALINGS
- * IN THE PROGRAM.
- *
- * @category    Dibs
- * @package     Dibs_EasyCheckout
- * @copyright   Copyright (c) 2009-2017 Vaimo Group
- */
 
+/**
+ * Class Dibs_EasyCheckout_Model_Api
+ */
 class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
 {
 
@@ -109,7 +89,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     public function getPaymentService()
     {
-        if (is_null($this->paymentService)){
+        if (is_null($this->paymentService)) {
             $apiClient = $this->_getApiClient();
             $this->paymentService = new Dibs_EasyPayment_Api_Service_Payment($apiClient);
         }
@@ -122,7 +102,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     public function getRefundService()
     {
-        if (is_null($this->paymentService)){
+        if (is_null($this->paymentService)) {
             $apiClient = $this->_getApiClient();
             $this->paymentService = new Dibs_EasyPayment_Api_Service_Refund($apiClient);
         }
@@ -135,7 +115,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     protected function _getApiClient()
     {
-        if (is_null($this->apiClient)){
+        if (is_null($this->apiClient)) {
             $secretKey = $this->_getDibsCheckoutHelper()->getSecretKey();
             $isTestEnvironment = $this->_getDibsCheckoutHelper()->isTestEnvironmentEnabled();
             $this->apiClient = new Dibs_EasyPayment_Api_Client($secretKey, $isTestEnvironment);
@@ -192,17 +172,61 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
                 'reference' =>  $quote->getEntityId()
             ],
             'checkout' => [
-                'url' => Mage::getUrl('dibseasy/checkout',array('_secure'=>true))
+                'url' => Mage::getUrl('dibseasy/checkout', array('_secure'=>true))
             ]
         ];
 
+        $this->setTermsAndConditionsUrl($params);
+        $this->setCustomerTypes($params);
+
+        return $params;
+    }
+
+    /**
+     * @param $params
+     *
+     * @return $this
+     */
+    private function setTermsAndConditionsUrl(&$params)
+    {
         $termsUrl = $this->_getDibsCheckoutHelper()->getTermsAndConditionsUrl();
 
-        if (!empty($termsUrl)){
+        if (!empty($termsUrl)) {
             $params['checkout']['termsUrl'] = $termsUrl;
         }
 
-        return $params;
+        return $this;
+    }
+
+    /**
+     * @param $params
+     *
+     * @return $this
+     */
+    private function setCustomerTypes(&$params)
+    {
+        $multipleCustomerTypes = [
+            Dibs_EasyCheckout_Model_Config::CONFIG_CUSTOMER_TYPE_ALL_B2C_DEFAULT,
+            Dibs_EasyCheckout_Model_Config::CONFIG_CUSTOMER_TYPE_ALL_B2B_DEFAULT
+        ];
+
+        $customerTypesAllowed = $this->_getDibsCheckoutHelper()->getAllowedCustomerTypes();
+        $default = $customerTypesAllowed;
+        if (in_array($customerTypesAllowed, $multipleCustomerTypes)) {
+            switch ($customerTypesAllowed) {
+                case Dibs_EasyCheckout_Model_Config::CONFIG_CUSTOMER_TYPE_ALL_B2C_DEFAULT:
+                    $default = Dibs_EasyCheckout_Model_Config::CONFIG_CUSTOMER_TYPE_B2C;
+                    break;
+                case Dibs_EasyCheckout_Model_Config::CONFIG_CUSTOMER_TYPE_ALL_B2B_DEFAULT:
+                    $default = Dibs_EasyCheckout_Model_Config::CONFIG_CUSTOMER_TYPE_B2B;
+                    break;
+            }
+        }
+
+        $params['checkout']['supportedConsumerTypes'] = str_replace('_', ',', $customerTypesAllowed);
+        $params['checkout']['defaultConsumerType'] = $default;
+
+        return $this;
     }
 
     /**
@@ -215,17 +239,16 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
         $result = [];
         $items = $quote->getAllItems();
         /** @var Mage_Sales_Model_Quote_Item $item */
-        foreach ($items as $item){
-            if ($this->_isNotChargeable($item)){
+        foreach ($items as $item) {
+            if ($this->_isNotChargeable($item)) {
                 continue;
             }
             $result[] = $this->_getOrderLineItem($item);
-
         }
 
         $shippingAmount = (double)$quote->getShippingAddress()->getShippingInclTax();
 
-        if ($shippingAmount > 0){
+        if ($shippingAmount > 0) {
             $carrierReference = $quote->getShippingAddress()->getShippingMethod();
             $carrierName = $quote->getShippingAddress()->getShippingDescription();
             $shippingAddress = $quote->getShippingAddress();
@@ -245,17 +268,16 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
         $result = [];
         $items = $creditmemo->getAllItems();
         /** @var Mage_Sales_Model_Order_Creditmemo_Item $item */
-        foreach ($items as $item){
-            if ($this->_isNotChargeable($item->getOrderItem())){
+        foreach ($items as $item) {
+            if ($this->_isNotChargeable($item->getOrderItem())) {
                 continue;
             }
             $result[] = $this->_getOrderLineItem($item);
-
         }
 
         $shippingAmount = (double)$creditmemo->getShippingInclTax();
 
-        if ($shippingAmount > 0){
+        if ($shippingAmount > 0) {
             $carrierReference = $creditmemo->getOrder()->getShippingMethod();
             $carrierName = $creditmemo->getOrder()->getShippingDescription();
             $result[] = $this->_getShippingLineItem($creditmemo, $carrierReference, $carrierName);
@@ -274,8 +296,8 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
         $result = [];
         $items = $invoice->getAllItems();
         /** @var Mage_Sales_Model_Order_Invoice_Item $item */
-        foreach ($items as $item){
-            if ($this->_isNotChargeable($item->getOrderItem())){
+        foreach ($items as $item) {
+            if ($this->_isNotChargeable($item->getOrderItem())) {
                 continue;
             }
             $result[] = $this->_getOrderLineItem($item);
@@ -283,7 +305,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
 
         $shippingAmount = (double)$invoice->getShippingInclTax();
 
-        if ($shippingAmount > 0){
+        if ($shippingAmount > 0) {
             $carrierReference = $invoice->getOrder()->getShippingMethod();
             $carrierName = $invoice->getOrder()->getShippingDescription();
             $result[] = $this->_getShippingLineItem($invoice, $carrierReference, $carrierName);
@@ -299,7 +321,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     protected function _getOrderLineItem(Mage_Core_Model_Abstract $item)
     {
-        $name = preg_replace('/[^\w\d\s]*/','',$item->getName());
+        $name = preg_replace('/[^\w\d\s]*/', '', $item->getName());
         $result = [
             'reference'         =>  $item->getSku(),
             'name'              =>  $name,
@@ -317,7 +339,8 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
 
     protected function _getShippingLineItem($shippingInfo, $carrierReference, $carrierName)
     {
-        $name = preg_replace('/[^\w\d\s]*/','',$carrierName);
+        $tax = ($shippingInfo->getShippingTaxAmount() + $shippingInfo->getShippingHiddenTaxAmount());
+        $name = preg_replace('/[^\w\d\s]*/', '', $carrierName);
         $result = [
             'reference'         =>  $carrierReference,
             'name'              =>  $name,
@@ -325,7 +348,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
             'unit'              =>  1,
             'unitPrice'         =>  $this->getDibsIntVal($shippingInfo->getShippingAmount()),
             'taxRate'           =>  0,
-            'taxAmount'         =>  $this->getDibsIntVal($shippingInfo->getShippingTaxAmount() + $shippingInfo->getShippingHiddenTaxAmount()),
+            'taxAmount'         =>  $this->getDibsIntVal($tax),
             'grossTotalAmount'  =>  $this->getDibsIntVal($shippingInfo->getShippingInclTax()),
             'netTotalAmount'    =>  $this->getDibsIntVal($shippingInfo->getShippingAmount()) ,
         ];

@@ -65,21 +65,21 @@ class Dibs_EasyPayment_Api_Response {
     {
         $result = '';
         $responseArray = $this->getResponseArray();
-        if (isset($responseArray['message'])){
+        if (isset($responseArray['message'])) {
             $result = $responseArray['message'];
         }
 
         return $result;
     }
 
-    /**h
+    /**
      * @return array
      */
     public function getErrors()
     {
         $result = [];
         $responseArray = $this->getResponseArray();
-        if (isset($responseArray['errors'])){
+        if (isset($responseArray['errors'])) {
             $result = $responseArray['errors'];
         }
 
@@ -90,12 +90,11 @@ class Dibs_EasyPayment_Api_Response {
     {
         $result = [];
         $errors = $this->getErrors();
-        foreach ($errors as $errorType){
-            foreach ($errorType as $error){
+        foreach ($errors as $errorType) {
+            foreach ($errorType as $error) {
                 $result[] = $error;
             }
         }
-
 
         return $result;
     }
@@ -114,8 +113,4 @@ class Dibs_EasyPayment_Api_Response {
         $dataObject = new Varien_Object($this->getResponseArray());
         return $dataObject;
     }
-
-
-
-
 }

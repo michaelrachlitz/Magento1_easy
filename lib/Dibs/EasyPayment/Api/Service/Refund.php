@@ -5,7 +5,6 @@
  */
 class Dibs_EasyPayment_Api_Service_Refund extends Dibs_EasyPayment_Api_Service{
 
-
     /** @var Dibs_EasyPayment_Api_Service_Action_Refund_Charge  */
     protected $charge;
 
@@ -31,15 +30,4 @@ class Dibs_EasyPayment_Api_Service_Refund extends Dibs_EasyPayment_Api_Service{
         $result = $this->charge->request($chargeId, $params);
         return $result;
     }
-
-
-
-
-
-
-
-
-
-
-
 }

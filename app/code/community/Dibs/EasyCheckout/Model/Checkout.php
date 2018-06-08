@@ -1,55 +1,36 @@
-    <?php
-/**
- * Copyright (c) 2009-2017 Vaimo Group
- *
- * Vaimo reserves all rights in the Program as delivered. The Program
- * or any portion thereof may not be reproduced in any form whatsoever without
- * the written consent of Vaimo, except as provided by licence. A licence
- * under Vaimo's rights in the Program may be available directly from
- * Vaimo.
- *
- * Disclaimer:
- * THIS NOTICE MAY NOT BE REMOVED FROM THE PROGRAM BY ANY USER THEREOF.
- * THE PROGRAM IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE PROGRAM OR THE USE OR OTHER DEALINGS
- * IN THE PROGRAM.
- *
- * @category    Dibs
- * @package     Dibs_EasyCheckout
- * @copyright   Copyright (c) 2009-2017 Vaimo Group
- */
+<?php
 
+/**
+ * Class Dibs_EasyCheckout_Model_Checkout
+ */
 class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
 {
-
     /**
      * @param Mage_Sales_Model_Quote $quote
      *
      * @return null
+     * @throws Dibs_EasyCheckout_Model_Exception
      */
     public function createPaymentId(Mage_Sales_Model_Quote $quote)
     {
+        $paymentId = null;
+
         if (!$quote->isVirtual()) {
             $configuredShippingRage = $this->_findShippingRate($quote->getShippingAddress());
             if (!$configuredShippingRage ||
                 $quote->getShippingAddress()->getShippingMethod() != $configuredShippingRage->getCode()) {
                 $this->_setShippingMethod($quote);
                 $quote->save();
-
             }
         }
 
-        $result = null;
         /** @var Dibs_EasyCheckout_Model_Api $api */
         $api = Mage::getModel('dibs_easycheckout/api');
+
         /** @var Dibs_EasyPayment_Api_Response $paymentResponse */
         $paymentId = $api->createPayment($quote);
 
-        if ($paymentId){
+        if ($paymentId) {
             $quote->setDibsEasyPaymentId($paymentId);
             $quote->setDibsEasyGrandTotal($quote->getGrandTotal());
             $quote->save();
@@ -99,7 +80,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
 
         $quote->setDibsEasyIsCreatingPayment(true);
 
-        $this->_prepareQuoteBillingAddress($quote,$payment);
+        $this->_prepareQuoteBillingAddress($quote, $payment);
         $this->_prepareQuoteShippingAddress($quote, $payment);
         $this->_setPaymentMethod($quote, $payment);
         $this->_setShippingMethod($quote);
@@ -119,7 +100,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
 
         $quote->setDibsEasyGrandTotal($quote->getGrandTotal());
 
-        if ($quote->getCheckoutMethod() == Mage_Checkout_Model_Type_Onepage::METHOD_GUEST){
+        if ($quote->getCheckoutMethod() == Mage_Checkout_Model_Type_Onepage::METHOD_GUEST) {
             $this->_prepareGuestCustomerQuote($quote);
             $quote->setCustomerIsGuest(1);
             $quote->setCustomerGroupId(Mage_Customer_Model_Group::NOT_LOGGED_IN_ID);
@@ -171,11 +152,13 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
      *
      * @return $this
      */
-    protected function _prepareQuoteBillingAddress(Mage_Sales_Model_Quote $quote,Dibs_EasyCheckout_Model_Api_Payment $payment)
-    {
+    protected function _prepareQuoteBillingAddress(
+        Mage_Sales_Model_Quote $quote,
+        Dibs_EasyCheckout_Model_Api_Payment $payment
+    ) {
         $paymentBillingAddress = $payment->getBillingAddress();
         $paymentBillingAddress = $paymentBillingAddress->getData();
-        if (empty($paymentBillingAddress)){
+        if (empty($paymentBillingAddress)) {
             $paymentBillingAddress = $payment->getShippingAddress();
         }
 
@@ -205,8 +188,10 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
      * @param Mage_Sales_Model_Quote $quote
      * @param Dibs_EasyCheckout_Model_Api_Payment $payment
      */
-    protected function _prepareQuoteShippingAddress(Mage_Sales_Model_Quote $quote,Dibs_EasyCheckout_Model_Api_Payment $payment)
-    {
+    protected function _prepareQuoteShippingAddress(
+        Mage_Sales_Model_Quote $quote,
+        Dibs_EasyCheckout_Model_Api_Payment $payment
+    ) {
 
         $shippingAddress = $quote->getShippingAddress();
         $shippingAddress->setFirstname($payment->getPrivatePerson()->getData('firstName'));
@@ -236,12 +221,11 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     protected function getCountryId($countryCode = '')
     {
         $result = null;
-        if (!empty($countryCode)){
+        if (!empty($countryCode)) {
             $result = Mage::getModel('directory/country')->loadByCode($countryCode)->getId();
         }
 
         return $result;
-
     }
 
     /**
@@ -266,13 +250,13 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     protected function _setPaymentMethod(Mage_Sales_Model_Quote $quote, Dibs_EasyCheckout_Model_Api_Payment $dibsPayment)
     {
         $quotePayment = $quote->getPayment();
-        $quotePayment->importData(array('method' => Dibs_EasyCheckout_Helper_Data::PAYMENT_CHECKOUT_METHOD));
+        $quotePayment->importData(array('method' => Dibs_EasyCheckout_Model_Config::PAYMENT_CHECKOUT_METHOD));
 
-        $quotePayment->setData('dibs_easy_payment_type',$dibsPayment->getPaymentDetails()->getPaymentType());
-        $quotePayment->setData('dibs_easy_cc_masked_pan',$dibsPayment->getPaymentDetails()->getMaskedPan());
-        $quotePayment->setData('cc_last_4',$dibsPayment->getPaymentDetails()->getCcLast4());
-        $quotePayment->setData('cc_exp_month',$dibsPayment->getPaymentDetails()->getCcExpMonth());
-        $quotePayment->setData('cc_exp_year',$dibsPayment->getPaymentDetails()->getCcExpYear());
+        $quotePayment->setData('dibs_easy_payment_type', $dibsPayment->getPaymentDetails()->getPaymentType());
+        $quotePayment->setData('dibs_easy_cc_masked_pan', $dibsPayment->getPaymentDetails()->getMaskedPan());
+        $quotePayment->setData('cc_last_4', $dibsPayment->getPaymentDetails()->getCcLast4());
+        $quotePayment->setData('cc_exp_month', $dibsPayment->getPaymentDetails()->getCcExpMonth());
+        $quotePayment->setData('cc_exp_year', $dibsPayment->getPaymentDetails()->getCcExpYear());
     }
 
     /**
@@ -283,7 +267,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         if (!$quote->getIsVirtual() && $shippingAddress = $quote->getShippingAddress()) {
             $shippingAddress = $quote->getShippingAddress();
             $shippingCountryId = $shippingAddress->getCountryId();
-            if (empty($shippingCountryId)){
+            if (empty($shippingCountryId)) {
                 $defaultCountryCode = Mage::getStoreConfig('general/country/default');
                 /** @var Mage_Directory_Model_Country $country */
                 $country = Mage::getModel('directory/country')->loadByCode($defaultCountryCode);
@@ -296,7 +280,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
 
             $shippingRate = $this->_findShippingRate($shippingAddress);
 
-            if (!$shippingRate){
+            if (!$shippingRate) {
                 $helper = $this->_getHelper();
                 $message = 'There is error. Please contact store administrator for details';
                 throw new Dibs_EasyCheckout_Model_Exception($helper->__($message));
@@ -306,7 +290,6 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         }
         $quote->setTotalsCollectedFlag(false);
         $quote->collectTotals();
-
     }
 
     /**
@@ -320,7 +303,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         $configuredShippingCarrier = $this->_getHelper()->getShippingCarrierId();
         /** @var Mage_Sales_Model_Quote_Address_Rate $rate */
         foreach ($shippingAddress->getShippingRatesCollection() as $rate) {
-            if ($rate->getCarrier() == $configuredShippingCarrier){
+            if ($rate->getCarrier() == $configuredShippingCarrier) {
                 $result = $rate;
             }
         }

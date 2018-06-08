@@ -1,28 +1,8 @@
 <?php
-/**
- * Copyright (c) 2009-2017 Vaimo Group
- *
- * Vaimo reserves all rights in the Program as delivered. The Program
- * or any portion thereof may not be reproduced in any form whatsoever without
- * the written consent of Vaimo, except as provided by licence. A licence
- * under Vaimo's rights in the Program may be available directly from
- * Vaimo.
- *
- * Disclaimer:
- * THIS NOTICE MAY NOT BE REMOVED FROM THE PROGRAM BY ANY USER THEREOF.
- * THE PROGRAM IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE PROGRAM OR THE USE OR OTHER DEALINGS
- * IN THE PROGRAM.
- *
- * @category    Dibs
- * @package     Dibs_EasyCheckout
- * @copyright   Copyright (c) 2009-2017 Vaimo Group
- */
 
+/**
+ * Class Dibs_EasyCheckout_Model_Observer
+ */
 class Dibs_EasyCheckout_Model_Observer extends Mage_Core_Model_Abstract
 {
     /**
@@ -33,10 +13,9 @@ class Dibs_EasyCheckout_Model_Observer extends Mage_Core_Model_Abstract
         $quote = $observer->getQuote();
         $grandTotal = (double)$quote->getGrandTotal();
         $dibsEasyGrandTotal = (double)$quote->getDibsEasyGrandTotal();
-        if ($grandTotal != $dibsEasyGrandTotal){
+        if ($grandTotal != $dibsEasyGrandTotal) {
             $quote->setDibsEasyPaymentId('');
         }
-
     }
 
     /**
@@ -58,9 +37,9 @@ class Dibs_EasyCheckout_Model_Observer extends Mage_Core_Model_Abstract
         /** @var Mage_Sales_Model_Order_Payment $orderPayment */
         $orderPayment = $order->getPayment();
 
-        $order->setData('dibs_easy_payment_id',$quote->getData('dibs_easy_payment_id'));
-        $orderPayment->setData('dibs_easy_cc_masked_pan',$quotePayment->getData('dibs_easy_cc_masked_pan'));
-        $orderPayment->setData('dibs_easy_payment_type',$quotePayment->getData('dibs_easy_payment_type'));
+        $order->setData('dibs_easy_payment_id', $quote->getData('dibs_easy_payment_id'));
+        $orderPayment->setData('dibs_easy_cc_masked_pan', $quotePayment->getData('dibs_easy_cc_masked_pan'));
+        $orderPayment->setData('dibs_easy_payment_type', $quotePayment->getData('dibs_easy_payment_type'));
         return $this;
     }
 
@@ -77,12 +56,16 @@ class Dibs_EasyCheckout_Model_Observer extends Mage_Core_Model_Abstract
         return $this;
     }
 
+    /**
+     * @param Varien_Event_Observer $observer
+     */
     public function setPaymentMethodAvailable(Varien_Event_Observer $observer)
     {
         $methodInstance = $observer->getEvent()->getMethodInstance();
         /** @var Mage_Sales_Model_Quote $quote */
         $quote = $observer->getEvent()->getQuote();
-        if ($methodInstance instanceof \Dibs_EasyCheckout_Model_Payment_Checkout && $quote->getDibsEasyIsCreatingPayment()) {
+        if ($methodInstance instanceof \Dibs_EasyCheckout_Model_Payment_Checkout
+            && $quote->getDibsEasyIsCreatingPayment()) {
             /** @var \StdClass $result */
             $result = $observer->getEvent()->getResult();
             /** @var Dibs_EasyCheckout_Helper_Data $helper */

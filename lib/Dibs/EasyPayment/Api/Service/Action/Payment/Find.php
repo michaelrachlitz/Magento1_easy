@@ -26,7 +26,7 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Find extends Dibs_EasyPayment_
      */
     public function request($paymentId)
     {
-        if (empty($paymentId)){
+        if (empty($paymentId)) {
             throw new Dibs_EasyPayment_Api_Exception_Request('Empty paymentId');
         }
         $apiEndPoint = $this->getApiEndpoint($paymentId);
@@ -38,15 +38,10 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Find extends Dibs_EasyPayment_
     protected function validateResponse($response)
     {
         $responseArray = $response->getResponseArray();
-        if (!isset($responseArray['payment']) && !empty($responseArray['payment'])){
+        if (!isset($responseArray['payment']) && !empty($responseArray['payment'])) {
             throw new Dibs_EasyPayment_Api_Exception_Response('PaymentId is empty');
         }
 
         return $this;
     }
-
-
-
-
-
 }

@@ -1,31 +1,11 @@
 <?php
-/**
- * Copyright (c) 2009-2017 Vaimo Group
- *
- * Vaimo reserves all rights in the Program as delivered. The Program
- * or any portion thereof may not be reproduced in any form whatsoever without
- * the written consent of Vaimo, except as provided by licence. A licence
- * under Vaimo's rights in the Program may be available directly from
- * Vaimo.
- *
- * Disclaimer:
- * THIS NOTICE MAY NOT BE REMOVED FROM THE PROGRAM BY ANY USER THEREOF.
- * THE PROGRAM IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE PROGRAM OR THE USE OR OTHER DEALINGS
- * IN THE PROGRAM.
- *
- * @category    Dibs
- * @package     Dibs_EasyCheckout
- * @copyright   Copyright (c) 2009-2017 Vaimo Group
- */
 
+/**
+ * Class Dibs_EasyCheckout_Model_Payment_Checkout
+ */
 class Dibs_EasyCheckout_Model_Payment_Checkout extends Mage_Payment_Model_Method_Abstract
 {
-    protected $_code = Dibs_EasyCheckout_Helper_Data::PAYMENT_CHECKOUT_METHOD;
+    protected $_code = Dibs_EasyCheckout_Model_Config::PAYMENT_CHECKOUT_METHOD;
 
     protected $_canCapture                  = true;
     protected $_canCapturePartial           = true;
@@ -48,7 +28,7 @@ class Dibs_EasyCheckout_Model_Payment_Checkout extends Mage_Payment_Model_Method
         /** @var Mage_Sales_Model_Order_Invoice $invoice */
         $invoice = $payment->getInvoice();
 
-        if (!$invoice){
+        if (!$invoice) {
             $message = $this->getDibsEasyCheckoutHelper()->__('Invoice is not exists');
             throw new Exception($message);
         }
@@ -57,11 +37,11 @@ class Dibs_EasyCheckout_Model_Payment_Checkout extends Mage_Payment_Model_Method
 
         $dibsPayment = $this->getDibsPayment($invoice);
 
-        $payment->setData('dibs_easy_payment_type',$dibsPayment->getPaymentDetails()->getPaymentType());
-        $payment->setData('dibs_easy_cc_masked_pan',$dibsPayment->getPaymentDetails()->getMaskedPan());
-        $payment->setData('cc_last_4',$dibsPayment->getPaymentDetails()->getCcLast4());
-        $payment->setData('cc_exp_month',$dibsPayment->getPaymentDetails()->getCcExpMonth());
-        $payment->setData('cc_exp_year',$dibsPayment->getPaymentDetails()->getCcExpYear());
+        $payment->setData('dibs_easy_payment_type', $dibsPayment->getPaymentDetails()->getPaymentType());
+        $payment->setData('dibs_easy_cc_masked_pan', $dibsPayment->getPaymentDetails()->getMaskedPan());
+        $payment->setData('cc_last_4', $dibsPayment->getPaymentDetails()->getCcLast4());
+        $payment->setData('cc_exp_month', $dibsPayment->getPaymentDetails()->getCcExpMonth());
+        $payment->setData('cc_exp_year', $dibsPayment->getPaymentDetails()->getCcExpYear());
         $payment->setStatus(self::STATUS_APPROVED);
         $payment->setTransactionId($chargeId)
             ->setIsTransactionClosed(1);
@@ -90,16 +70,16 @@ class Dibs_EasyCheckout_Model_Payment_Checkout extends Mage_Payment_Model_Method
         $chargeId = null;
         $creditMemo = $payment->getCreditmemo();
         $invoice = $creditMemo->getInvoice();
-        if ($invoice && $invoice->getTransactionId()){
+        if ($invoice && $invoice->getTransactionId()) {
             $chargeId = $invoice->getTransactionId();
         }
 
-        if (empty($chargeId)){
+        if (empty($chargeId)) {
             $message = $this->getDibsEasyCheckoutHelper()->__('Dibs Charge id is empty');
             throw new Exception($message);
         }
 
-        $refundId = $this->processRefund($creditMemo,$amount,$chargeId);
+        $refundId = $this->processRefund($creditMemo, $amount, $chargeId);
         $payment->setTransactionId($refundId)
             ->setIsTransactionClosed(1);
 

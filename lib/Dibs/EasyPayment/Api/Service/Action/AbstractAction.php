@@ -9,7 +9,6 @@ abstract class Dibs_EasyPayment_Api_Service_Action_AbstractAction
     /** @var Dibs_EasyPayment_Api_Service  */
     protected $service;
 
-
     /**
      * DibsEasyPayment_Api_Service_Action_AbstractAction constructor.
      *
@@ -35,8 +34,4 @@ abstract class Dibs_EasyPayment_Api_Service_Action_AbstractAction
     {
         return $this->getService()->getClient();
     }
-
-
-
-
 }

@@ -1,45 +1,10 @@
 <?php
-/**
- * Copyright (c) 2009-2017 Vaimo Group
- *
- * Vaimo reserves all rights in the Program as delivered. The Program
- * or any portion thereof may not be reproduced in any form whatsoever without
- * the written consent of Vaimo, except as provided by licence. A licence
- * under Vaimo's rights in the Program may be available directly from
- * Vaimo.
- *
- * Disclaimer:
- * THIS NOTICE MAY NOT BE REMOVED FROM THE PROGRAM BY ANY USER THEREOF.
- * THE PROGRAM IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE PROGRAM OR THE USE OR OTHER DEALINGS
- * IN THE PROGRAM.
- *
- * @category    Dibs
- * @package     Dibs_EasyCheckout
- * @copyright   Copyright (c) 2009-2017 Vaimo Group
- */
 
+/**
+ * Class Dibs_EasyCheckout_Helper_Data
+ */
 class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
 {
-
-    const PAYMENT_CHECKOUT_METHOD = 'dibs_easy_checkout';
-
-    const API_ENVIRONMENT_TEST = 'test';
-
-    const API_ENVIRONMENT_LIVE = 'live';
-
-    const DIBS_CHECKOUT_JS_TEST = 'https://test.checkout.dibspayment.eu/v1/checkout.js?v=1';
-
-    const DIBS_CHECKOUT_JS_LIVE = 'https://checkout.dibspayment.eu/v1/checkout.js?v=1';
-
-    const DEFAULT_CHECKOUT_LANGUAGE = 'en-GB';
-
-    const DIBS_EASY_SHIPPING_METHOD = 'dibs_easy_freeshipping_dibs_easy_freeshipping';
-
     // For now we support only SEK
     protected $_supportedCurrencies = ['SEK','NOK','DKK'];
 
@@ -52,14 +17,13 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $result = false;
 
-        $checkoutEnabled = (bool)(int) Mage::getStoreConfig('payment/dibs_easy_checkout/enabled');
+        $checkoutEnabled = (bool)(int) Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_ENABLED);
         $quoteCurrency = $this->getQuote()->getQuoteCurrencyCode();
-        $quoteCurrencySupported = in_array($quoteCurrency,$this->_supportedCurrencies);
+        $quoteCurrencySupported = in_array($quoteCurrency, $this->_supportedCurrencies);
 
-        if ($checkoutEnabled && $quoteCurrencySupported){
+        if ($checkoutEnabled && $quoteCurrencySupported) {
             $result = true;
         }
-
 
         return $result;
     }
@@ -69,7 +33,7 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getEnvironment()
     {
-        return Mage::getStoreConfig('payment/dibs_easy_checkout/environment');
+        return Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_ENVIRONMENT);
     }
 
     /**
@@ -77,7 +41,7 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getLiveSecret()
     {
-        return Mage::getStoreConfig('payment/dibs_easy_checkout/live_secret_key');
+        return Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_LIVE_SECRET_KEY);
     }
 
     /**
@@ -85,7 +49,7 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getTestSecret()
     {
-        return Mage::getStoreConfig('payment/dibs_easy_checkout/test_secret_key');
+        return Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_TEST_SECRET_KEY);
     }
 
     /**
@@ -93,7 +57,7 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getLiveCheckoutKey()
     {
-        return Mage::getStoreConfig('payment/dibs_easy_checkout/live_checkout_key');
+        return Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_LIVE_CHECKOUT_KEY);
     }
 
     /**
@@ -101,7 +65,7 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getTestCheckoutKey()
     {
-        return Mage::getStoreConfig('payment/dibs_easy_checkout/test_checkout_key');
+        return Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_TEST_CHECKOUT_KEY);
     }
 
     /**
@@ -109,7 +73,7 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getNewOrderStatus()
     {
-        return Mage::getStoreConfig('payment/dibs_easy_checkout/new_order_status');
+        return Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_NEW_ORDER_STATUS);
     }
 
     /**
@@ -117,7 +81,7 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getShippingCarrierId()
     {
-        return Mage::getStoreConfig('payment/dibs_easy_checkout/carrier');
+        return Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_CARRIER);
     }
 
     /**
@@ -125,7 +89,31 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getTermsAndConditionsUrl()
     {
-        return Mage::getStoreConfig('payment/dibs_easy_checkout/terms_and_conditions_link');
+        $result = '';
+        $linkType = Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_TERMS_CONDITIONS_LINK_TYPE);
+        switch ($linkType) {
+            case Dibs_EasyCheckout_Model_Config::CONFIG_TERMS_CONDITIONS_LINK_TYPE_DIRECT:
+                $result = Mage::getStoreConfig(
+                    Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_TERMS_CONDITIONS_DIRECT_LINK
+                );
+                break;
+            case Dibs_EasyCheckout_Model_Config::CONFIG_TERMS_CONDITIONS_LINK_TYPE_CMS_PAGE:
+                $cmsPageId = Mage::getStoreConfig(
+                    Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_TERMS_CONDITIONS_CMS_LINK
+                );
+                $result = Mage::helper('cms/page')->getPageUrl($cmsPageId);
+                break;
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getAllowedCustomerTypes()
+    {
+        return Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_CUSTOMER_TYPE);
     }
 
     /**
@@ -133,36 +121,33 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getCheckoutLanguage()
     {
-        $language = self::DEFAULT_CHECKOUT_LANGUAGE;
-        $currentStoreLang = str_replace('_','-',Mage::app()->getLocale()->getLocaleCode());
-        if (in_array($currentStoreLang, $this->_supportedLanguages)){
+        $language = Dibs_EasyCheckout_Model_Config::DEFAULT_CHECKOUT_LANGUAGE;
+        $currentStoreLang = str_replace('_', '-', Mage::app()->getLocale()->getLocaleCode());
+        if (in_array($currentStoreLang, $this->_supportedLanguages)) {
             $language = $currentStoreLang;
         }
 
         return $language;
-
     }
+
     /**
      * @return string
      */
     public function getEasyCheckoutJsUrl()
     {
-
         $environment = $this->getEnvironment();
-        switch ($environment){
-            case self::API_ENVIRONMENT_TEST:
-                $result = self::DIBS_CHECKOUT_JS_TEST;
+        switch ($environment) {
+            case Dibs_EasyCheckout_Model_Config::CONFIG_API_ENVIRONMENT_TEST:
+                $result = Dibs_EasyCheckout_Model_Config::DIBS_CHECKOUT_JS_URL_TEST;
                 break;
-            case self::API_ENVIRONMENT_LIVE:
-                $result = self::DIBS_CHECKOUT_JS_LIVE;
+            case Dibs_EasyCheckout_Model_Config::CONFIG_API_ENVIRONMENT_LIVE:
+                $result = Dibs_EasyCheckout_Model_Config::DIBS_CHECKOUT_JS_URL_LIVE;
                 break;
             default:
                 $result = '';
         }
 
-
         return $result;
-
     }
 
     /**
@@ -171,20 +156,18 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
     public function getSecretKey()
     {
         $environment = $this->getEnvironment();
-        switch ($environment){
-            case self::API_ENVIRONMENT_TEST:
+        switch ($environment) {
+            case Dibs_EasyCheckout_Model_Config::CONFIG_API_ENVIRONMENT_TEST:
                 $result = $this->getTestSecret();
                 break;
-            case self::API_ENVIRONMENT_LIVE:
+            case Dibs_EasyCheckout_Model_Config::CONFIG_API_ENVIRONMENT_LIVE:
                 $result = $this->getLiveSecret();
                 break;
             default:
                 $result = '';
         }
 
-
         return $result;
-
     }
 
     /**
@@ -193,11 +176,11 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
     public function getCheckoutKey()
     {
         $environment = $this->getEnvironment();
-        switch ($environment){
-            case self::API_ENVIRONMENT_TEST:
+        switch ($environment) {
+            case Dibs_EasyCheckout_Model_Config::CONFIG_API_ENVIRONMENT_TEST:
                 $result = $this->getTestCheckoutKey();
                 break;
-            case self::API_ENVIRONMENT_LIVE:
+            case Dibs_EasyCheckout_Model_Config::CONFIG_API_ENVIRONMENT_LIVE:
                 $result = $this->getLiveCheckoutKey();
                 break;
             default:
@@ -214,7 +197,7 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
     {
         $result = false;
         $currentEnv = $this->getEnvironment();
-        if ($currentEnv == self::API_ENVIRONMENT_TEST){
+        if ($currentEnv == Dibs_EasyCheckout_Model_Config::CONFIG_API_ENVIRONMENT_TEST) {
             $result = true;
         }
 
@@ -244,17 +227,14 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
     public function getQuote()
     {
         $result = null;
-        if ($this->getCheckout()){
+        if ($this->getCheckout()) {
             $result = $this->getCheckout()->getQuote();
         }
-        if (empty($result)){
+        if (empty($result)) {
             $message = $this->__('Cart is empty');
             throw new Exception($message);
         }
         return $result;
     }
-
-
-
 
 }

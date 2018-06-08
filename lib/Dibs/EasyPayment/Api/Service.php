@@ -28,6 +28,4 @@ class Dibs_EasyPayment_Api_Service {
         return $this->client;
     }
 
-
-
 }

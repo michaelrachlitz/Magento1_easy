@@ -77,15 +77,4 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
         $result = $this->cancel->request($paymentId, $params);
         return $result;
     }
-
-
-
-
-
-
-
-
-
-
-
 }

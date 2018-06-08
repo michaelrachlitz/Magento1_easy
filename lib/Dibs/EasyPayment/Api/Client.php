@@ -5,7 +5,6 @@
  */
 class Dibs_EasyPayment_Api_Client {
 
-
     CONST LIB_VERSION = '1.0';
 
     CONST API_VERSION = '1.0';
@@ -32,10 +31,9 @@ class Dibs_EasyPayment_Api_Client {
 
         $this->apiServerUrl = self::API_LIVE_SERVER_URL;
 
-        if ($isTestEnv){
+        if ($isTestEnv) {
             $this->apiServerUrl = self::API_TEST_SERVER_URL;
         }
-
     }
 
     /**
@@ -98,20 +96,20 @@ class Dibs_EasyPayment_Api_Client {
             $response->setResponse(json_encode(['message'=> curl_error($ch)]));
         }
 
-        if ( empty($result) && $code != 200) {
+        if (empty($result) && $code != 200) {
             $response->setResponse(json_encode(['message'=> 'CURL Error ', $code]));
         }
 
-        if (in_array($code,[200,201,204])){
+        if (in_array($code, [200, 201, 204])) {
             $response->setSuccess(true);
         }
 
-        if ($response->getCode() == 400){
+        if ($response->getCode() == 400) {
             $errors = implode(' ', $response->getErrorMessages());
             throw new Dibs_EasyPayment_Api_Exception_Response($errors, 400);
         }
 
-        if (!$response->getSuccess()){
+        if (!$response->getSuccess()) {
             $message = $response->getMessage();
             throw new Dibs_EasyPayment_Api_Exception_Response($message, 500);
         }

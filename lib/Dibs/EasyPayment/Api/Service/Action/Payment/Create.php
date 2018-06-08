@@ -13,17 +13,17 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
     /**
      * @var array
      */
-    protected $orderFields = [
+    protected $orderFields = array(
         'items',
         'amount',
         'currency',
         'reference'
-    ];
+    );
 
     /**
      * @var array
      */
-    protected $orderItemFields = [
+    protected $orderItemFields = array(
         'reference',
         'name',
         'quantity',
@@ -33,14 +33,14 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
         'taxAmount',
         'grossTotalAmount',
         'netTotalAmount'
-    ];
+    );
 
     /**
      * @var array
      */
-    protected $checkoutFields = [
+    protected $checkoutFields = array(
         'url'
-    ];
+    );
 
     /**
      * @return string
@@ -68,7 +68,7 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
     protected function validateResponse($response)
     {
         $responseArray = $response->getResponseArray();
-        if (!isset($responseArray['paymentId']) && !empty($responseArray['paymentId'])){
+        if (!isset($responseArray['paymentId']) && !empty($responseArray['paymentId'])) {
             throw new Dibs_EasyPayment_Api_Exception_Response('PaymentId is empty');
         }
 
@@ -85,39 +85,38 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
     {
         $missedParams = [];
 
-        if (!isset($params['order'])){
+        if (!isset($params['order'])) {
             throw new Dibs_EasyPayment_Api_Exception_Request('parameter order is missing');
         }
 
-        foreach ($this->orderFields as $orderField){
-            if (!isset($params['order'][$orderField])){
+        foreach ($this->orderFields as $orderField) {
+            if (!isset($params['order'][$orderField])) {
                 $missedParams[] = $orderField;
             }
         }
-        if (!empty($missedParams)){
-            throw new Dibs_EasyPayment_Api_Exception_Request('Empty order fields '.implode(',',$missedParams));
+        if (!empty($missedParams)) {
+            throw new Dibs_EasyPayment_Api_Exception_Request(
+                'Empty order fields ' . implode(',', $missedParams)
+            );
         }
 
         if (!isset($params['order']['items']) || empty($params['order']['items'])) {
             throw new Dibs_EasyPayment_Api_Exception_Request('Empty order items ');
         }
 
-        foreach ($params['order']['items'] as $orderItem){
-            foreach ($this->orderItemFields as $orderItemField){
-                if (!isset($orderItem[$orderItemField])){
+        foreach ($params['order']['items'] as $orderItem) {
+            foreach ($this->orderItemFields as $orderItemField) {
+                if (!isset($orderItem[$orderItemField])) {
                     $missedParams[] = $orderItemField;
                 }
             }
-            if (!empty($missedParams)){
-                throw new Dibs_EasyPayment_Api_Exception_Request('Empty order item fields '.implode(',',$missedParams));
+            if (!empty($missedParams)) {
+                throw new Dibs_EasyPayment_Api_Exception_Request(
+                    'Empty order item fields ' . implode(',', $missedParams)
+                );
             }
         }
 
         return $this;
-
     }
-
-
-
-
 }
