@@ -14,12 +14,12 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     public function createPaymentId(Mage_Sales_Model_Quote $quote)
     {
         $paymentId = null;
-
+        error_log('createPaymentId');
         if (!$quote->isVirtual()) {
             $configuredShippingRage = $this->_findShippingRate($quote->getShippingAddress());
             if (!$configuredShippingRage ||
                 $quote->getShippingAddress()->getShippingMethod() != $configuredShippingRage->getCode()) {
-                $this->_setShippingMethod($quote);
+                //$this->_setShippingMethod($quote);
                 $quote->save();
             }
         }
@@ -47,7 +47,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
      */
     public function validatePayment(Mage_Sales_Model_Quote $quote, Dibs_EasyCheckout_Model_Api_Payment $payment)
     {
-        $result = false;
+        $result = true;
         /** @var Dibs_EasyCheckout_Model_Api $api */
         $api = Mage::getModel('dibs_easycheckout/api');
         if ($payment->getOrderDetails()->getData('amount') == $api->getDibsQuoteGrandTotal($quote)
@@ -80,11 +80,8 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
 
         $quote->setDibsEasyIsCreatingPayment(true);
 
-        $this->_prepareQuoteBillingAddress($quote, $payment);
-        $this->_prepareQuoteShippingAddress($quote, $payment);
         $this->_setPaymentMethod($quote, $payment);
-        $this->_setShippingMethod($quote);
-
+   
         /** @var Dibs_EasyCheckout_Model_Api $api */
         $api = Mage::getModel('dibs_easycheckout/api');
         $quoteDibsTotal = $api->getDibsIntVal($quote->getGrandTotal());
@@ -145,6 +142,165 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
 
         return $order;
     }
+    
+    public function getQuote() {
+        return Mage::getSingleton('checkout/session')->getQuote();
+    }
+    
+    /**
+     * Set shipping address to quote stored in Easy
+     */
+    public function changeShippingAddress() {
+        $api = Mage::getModel('dibs_easycheckout/api');
+        $paymentId = $this->getQuote()->getDibsEasyPaymentId();
+        $payment = $api->findPayment($paymentId);
+        $quote = $this->getQuote();
+        $this->_prepareQuoteBillingAddress($quote, $payment);
+        $this->_prepareQuoteShippingAddress($quote, $payment);
+        $shippingAddress = $quote->getShippingAddress();
+        $shippingAddress->collectShippingRates();
+        $this->getQuote()->save();
+    }
+    
+    /**
+     * Get shipping rates
+     * 
+     * @return array
+     */
+    protected function getShippinMethods() {
+         $quote = $this->getQuote();
+         $shippingAddress = $quote->getShippingAddress();
+         $shippingMethods = array();
+         $activeMethodIsSet = false;
+         foreach ($shippingAddress->getGroupedAllShippingRates() as $group) {
+                foreach ($group as $rate) {
+                    $shippingMethods[$rate->getCode()] = array('code' => $rate->getCode(),
+                     'price' => $this->_getHelper()->formatPrice($rate->getPrice()),
+                     'method_title' => $rate->getMethodTitle(),
+                     'carrier_title' =>  $rate->getCarrierTitle(),
+                     'active' => $rate->getCode() == $shippingAddress->getShippingMethod() ? $activeMethodIsSet = 1 : 0    
+                     );
+                }
+         }
+         
+         if(!$activeMethodIsSet && $shippingMethods) {
+             $current = current($shippingMethods);
+             $current['active'] = 1;
+             $shippingRateCode = key($shippingMethods);
+             $shippingMethods[$shippingRateCode] = $current;
+             $this->_setShippingMethod($shippingRateCode);
+         }
+         
+         // no shipping methods for current address
+         if(!$quote->isVirtual() && empty($shippingMethods)) {
+             $message = 'No available shipping methods for this address';
+             Mage::getSingleton('core/session')->setShippingNotAvailable(1);
+             Mage::getSingleton('core/session')->setShippingMethodsError($message);
+         }
+         error_log(print_r($shippingMethods, true));
+         return $shippingMethods;
+    }
+    
+    /*
+     * Get all totals from quote
+     * 
+     * @return array
+     */
+    protected function getTotals() {
+        $quote = $this->getQuote();
+        $totals = array();
+        
+        
+        $totals['subtotal'] = array('id' => 'subtotal', 'value' => $this->_getHelper()->formatPrice($quote->getSubtotal()), 'label'=>'Subtotal');
+        $shippingRate = $quote->getShippingAddress()->getShippingRateByCode($quote->getShippingAddress()->getShippingMethod());
+        if($shippingRate) {
+           $totals['shipping_method'] = array('id' => 'shipping_method', 'value' => $shippingRate->getCarrierTitle(). ' - ' . $shippingRate->getMethodTitle() , 'label'=>'Shipping');
+        }
+        
+        $tax = $quote->getShippingAddress()->getTaxAmount();
+        $currency = $quote->getQuoteCurrencyCode();
+        if($tax > 0) {
+            $taxHtml = '<br><span id="dibs-easy-incl-tax">(Incl. <span id="dibs-easy-incl-tax-amount">  '
+                       . $tax . ' </span>  <span id="dibs-easy-incl-tax-symbol">' 
+                       . $currency  .'</span> tax)</span>';
+        }
+        
+        
+        $discountAmount = $quote->getShippingAddress()->getDiscountAmount();
+        if(abs($discountAmount) > 0) {
+            $discountAmount = $this->_getHelper()->formatPrice($discountAmount);
+            $discountDescription = $quote->getShippingAddress()->getDiscountDescription();
+            $totals['discount'] = ['id'=>'discount', 'label'=> 'Discount (' . $discountDescription . ')', 'value'=> $discountAmount];
+        }
+       
+        
+        
+        $totals['grand_total'] = array('id' => 'grand_total', 'value' =>$this->_getHelper()->formatPrice($quote->getGrandTotal()), 'label'=>'Grand Total' . $taxHtml);
+        return $totals;
+    }
+    
+    /**
+    * Get values needed for checkout Easy page
+    */
+    public function getGridValues() {
+        $values = array();
+        $values['shipping_methods'] = $this->getShippinMethods();
+        $values['totals'] = $this->getTotals(); 
+        
+        if(isset($values['shipping_methods']['exception'])) {
+            //$values['exception'] = $values['shipping_methods']['exception'];
+        }
+        
+        $api = Mage::getModel('dibs_easycheckout/api');
+        $paymentId = $this->getQuote()->getDibsEasyPaymentId();
+        $quote = $this->getQuote();
+        
+        $totals = $quote->getTotals();
+      
+        
+        $api->updateCart($quote, $paymentId);
+        return $values;
+    }
+    
+    /*
+     * Chech if quote was changed 
+     */
+    protected function cartEasyUpdateIsNeeded() {
+      $quote = $this->getQuote();
+      $api = Mage::getModel('dibs_easycheckout/api');
+      
+      $paymentId = $quote->getDibsEasyPaymentId();
+      
+      $payment = $api->findPayment($paymentId);
+      if($payment->getOrderDetails()->getData('amount') == $api->getDibsIntVal($quote->getGrandTotal())) {
+          return false;
+      } else {
+          return true;
+      }
+    
+    }
+    
+    public function start() {
+        if($this->cartEasyUpdateIsNeeded()) {
+            $api = Mage::getModel('dibs_easycheckout/api');
+            $paymentId = $this->getQuote()->getDibsEasyPaymentId();
+            $quote = $this->getQuote();
+            $api->updateCart($quote, $paymentId);
+        }
+    }
+    
+    /**
+     * Set new shipping method on checkout page
+     * 
+     * @param type $shippingRateCode
+     */
+    public function setShippingMethod($shippingRateCode) {
+        $paymentId = $this->getQuote()->getDibsEasyPaymentId();
+        $quote = $this->getQuote();
+        $this->_setShippingMethod($shippingRateCode);
+        $api = Mage::getModel('dibs_easycheckout/api');
+        $api->updateCart($quote, $paymentId);
+   }
 
     /**
      * @param Mage_Sales_Model_Quote $quote
@@ -204,7 +360,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         $shippingAddress->setTelephone($payment->getPrivatePerson()->getTelephone());
         $shippingAddress->setCompany($payment->getCompany()->getData('name'));
         $shippingRegionCode = $payment->getShippingAddress()->getData('postalCode');
-
+        $shippingAddress->setCollectShippingRates(true);
         if ($shippingRegionCode) {
             $shippingRegionId =$this->getRegionId($shippingAddress->getCountryId(), $shippingRegionCode);
             $shippingAddress->setRegionId($shippingRegionId);
@@ -262,34 +418,19 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     /**
      * @param Mage_Sales_Model_Quote $quote
      */
-    protected function _setShippingMethod(Mage_Sales_Model_Quote $quote)
+    protected function _setShippingMethod($shippingRateCode)
     {
+        $quote = $this->getQuote();
         if (!$quote->getIsVirtual() && $shippingAddress = $quote->getShippingAddress()) {
             $shippingAddress = $quote->getShippingAddress();
-            $shippingCountryId = $shippingAddress->getCountryId();
-            if (empty($shippingCountryId)) {
-                $defaultCountryCode = Mage::getStoreConfig('general/country/default');
-                /** @var Mage_Directory_Model_Country $country */
-                $country = Mage::getModel('directory/country')->loadByCode($defaultCountryCode);
-
-                $shippingAddress->setCountryId($country->getId());
-            }
-
             $shippingAddress->setCollectShippingRates(true)
                 ->collectShippingRates();
-
-            $shippingRate = $this->_findShippingRate($shippingAddress);
-
-            if (!$shippingRate) {
-                $helper = $this->_getHelper();
-                $message = 'There is error. Please contact store administrator for details';
-                throw new Dibs_EasyCheckout_Model_Exception($helper->__($message));
-            }
-
-            $shippingAddress->setShippingMethod($shippingRate->getCode());
+            $shippingAddress->setShippingMethod($shippingRateCode)->save();
         }
+       
         $quote->setTotalsCollectedFlag(false);
         $quote->collectTotals();
+        $quote->save();
     }
 
     /**
@@ -303,9 +444,6 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         $configuredShippingCarrier = $this->_getHelper()->getShippingCarrierId();
         /** @var Mage_Sales_Model_Quote_Address_Rate $rate */
         foreach ($shippingAddress->getShippingRatesCollection() as $rate) {
-            if ($rate->getCarrier() == $configuredShippingCarrier) {
-                $result = $rate;
-            }
         }
 
         return $result;
@@ -370,4 +508,5 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     {
         return Mage::getModel('sales/order')->load($id, $key);
     }
+
 }

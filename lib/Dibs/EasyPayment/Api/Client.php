@@ -77,9 +77,10 @@ class Dibs_EasyPayment_Api_Client {
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, $this->getHeaders());
 
-        if ('POST' === $method && count($data) > 0) {
+        if (('POST' === $method || 'PUT' === $method) && count($data) > 0) {
             curl_setopt( $ch, CURLOPT_POST, true );
             curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode($data));
+            error_log(print_r($data, true));
         }
 
         $response = $this->prepareResponse($ch);

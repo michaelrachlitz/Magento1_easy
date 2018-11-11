@@ -236,5 +236,12 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
         }
         return $result;
     }
-
+    
+    public function getCartUrl() {
+        return Mage::getSingleton('checkout/session');
+    }
+   
+    public function formatPrice($price) {
+        return Mage::getModel('directory/currency')->formatTxt($price, array('display' => Zend_Currency::NO_SYMBOL));
+    }
 }

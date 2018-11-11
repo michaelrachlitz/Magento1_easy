@@ -83,6 +83,14 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
         $result = $response->getResponseDataObject()->getData('refundId');
         return $result;
     }
+    
+    public function updateCart(Mage_Sales_Model_Quote $quote, $paymentId)
+    {
+        $result = null;
+        $paymentService = $this->getPaymentService();
+        $params = $this->_getUpadtePaymentParams($quote);
+        $response = $paymentService->update($paymentId, $params);
+    }
 
     /**
      * @return Dibs_EasyPayment_Api_Service_Payment
@@ -181,6 +189,20 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
 
         return $params;
     }
+    
+    /**
+     * @param Mage_Sales_Model_Quote $quote
+     * 
+     * @return array
+     */
+    protected function _getUpadtePaymentParams(Mage_Sales_Model_Quote $quote)
+    {
+        $result = array();
+        $result['amount'] =round($quote->getGrandTotal(), 2) * 100;
+        $result['items'] = $this->_getQuoteItems($quote);
+        $result['shipping']['costSpecified'] = true;
+        return $result;
+    }
 
     /**
      * @param $params
@@ -189,7 +211,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     private function setTermsAndConditionsUrl(&$params)
     {
-        $termsUrl = $this->_getDibsCheckoutHelper()->getTermsAndConditionsUrl();
+        $termsUrl = 'http://termsandconditions.com';  //$this->_getDibsCheckoutHelper()->getTermsAndConditionsUrl();
 
         if (!empty($termsUrl)) {
             $params['checkout']['termsUrl'] = $termsUrl;
@@ -406,7 +428,8 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     protected function _getItemGrossTotalAmount(Mage_Core_Model_Abstract $item)
     {
-        $itemGrossTotal = (double)$item->getRowTotalInclTax() - (double)$item->getDiscountAmount();
+        $itemGrossTotal =  (double)$item->getRowTotal(); //- (double)abs($item->getDiscountAmount()); 
+        //(double)$item->getRowTotalInclTax() - (double)$item->getDiscountAmount();
         $result = $this->getDibsIntVal($itemGrossTotal);
 
         return $result;

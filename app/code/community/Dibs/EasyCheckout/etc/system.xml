@@ -123,57 +123,9 @@
                             <show_in_website>1</show_in_website>
                             <depends><enabled>1</enabled></depends>
                         </new_order_status>
-                        <carrier translate="label">
-                            <label>Shipping Carrier</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>dibs_easycheckout/system_config_source_carrier</source_model>
-                            <sort_order>70</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_store>1</show_in_store>
-                            <show_in_website>1</show_in_website>
-                            <depends><enabled>1</enabled></depends>
-                        </carrier>
-                    </fields>
+                   </fields>
                 </dibs_easy_checkout>
             </groups>
         </payment>
-        <carriers>
-            <groups>
-                <dibs_easy_free_shipping translate="label">
-                    <label>Dibs Easy Free Shipping</label>
-                    <sort_order>1</sort_order>
-                    <show_in_default>1</show_in_default>
-                    <show_in_website>1</show_in_website>
-                    <show_in_store>0</show_in_store>
-                    <fields>
-                        <active translate="label">
-                            <label>Enabled</label>
-                            <frontend_type>select</frontend_type>
-                            <source_model>adminhtml/system_config_source_yesno</source_model>
-                            <sort_order>1</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </active>
-                        <name translate="label">
-                            <label>Method Name</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>3</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </name>
-                        <title translate="label">
-                            <label>Title</label>
-                            <frontend_type>text</frontend_type>
-                            <sort_order>2</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>1</show_in_website>
-                            <show_in_store>1</show_in_store>
-                        </title>
-                    </fields>
-                </dibs_easy_free_shipping>
-            </groups>
-        </carriers>
     </sections>
 </config>

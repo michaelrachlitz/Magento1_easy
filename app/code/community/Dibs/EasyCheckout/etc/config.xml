@@ -20,6 +20,12 @@
                     <sales_order_creditmemo_totals>Dibs_EasyCheckout_Block_Adminhtml_Sales_Order_Creditmemo_Totals</sales_order_creditmemo_totals>
                 </rewrite>
             </adminhtml>
+            <checkout>
+              <rewrite>
+                <onepage_link>Dibs_EasyCheckout_Block_Checkout_Onepage_Link</onepage_link>
+                <cart_sidebar>Dibs_EasyCheckout_Block_Cart_Sidebar</cart_sidebar>
+              </rewrite>
+            </checkout>
         </blocks>
         <models>
             <dibs_easycheckout>
@@ -146,16 +152,6 @@
     </admin>
 
     <default>
-        <carriers>
-            <dibs_easy_free_shipping>
-                <active>1</active>
-                <model>dibs_easycheckout/carrier_freeshipping</model>
-                <title>Dibs Easy Checkout Free Shipping</title>
-                <sort_order>10</sort_order>
-                <sallowspecific>0</sallowspecific>
-                <express_max_weight>0</express_max_weight>
-            </dibs_easy_free_shipping>
-        </carriers>
         <payment>
             <dibs_easy_checkout>
                 <title>Dibs Easy Checkout</title>

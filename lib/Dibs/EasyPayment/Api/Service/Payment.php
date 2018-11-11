@@ -16,6 +16,9 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
 
     /** @var Dibs_EasyPayment_Api_Service_Action_Payment_Cancel  */
     protected $cancel;
+    
+    /** @var Dibs_EasyPayment_Api_Service_Action_Payment_Update  */
+    protected $update;
 
     /**
      * DibsEasyPayment_Api_Resource_Payment constructor.
@@ -29,7 +32,7 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
         $this->find = new Dibs_EasyPayment_Api_Service_Action_Payment_Find($this);
         $this->charge = new Dibs_EasyPayment_Api_Service_Action_Payment_Charge($this);
         $this->cancel = new Dibs_EasyPayment_Api_Service_Action_Payment_Cancel($this);
-
+        $this->update = new Dibs_EasyPayment_Api_Service_Action_Payment_Update($this);
     }
 
     /**
@@ -75,6 +78,12 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
     public function cancel($paymentId, $params)
     {
         $result = $this->cancel->request($paymentId, $params);
+        return $result;
+    }
+    
+    public function update($paymentId, $params) 
+    {
+        $result = $this->update->request($paymentId, $params);
         return $result;
     }
 }

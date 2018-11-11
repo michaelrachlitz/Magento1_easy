@@ -4,25 +4,7 @@
         <reference name="head">
             <action method="addItem"><type>skin_css</type><name>css/dibs/easy_checkout.css</name><params/></action>
         </reference>
-        <reference name="topCart.extra_actions">
-            <block ifconfig="checkout/options/dibs_easy_checkout_enabled" type="dibs_easycheckout/checkout_link" name="dibs_easy.checkout.top_cart.shortcut" template="dibs/easycheckout/link.phtml"/>
-        </reference>
-        <reference name="cart_sidebar.extra_actions">
-            <block ifconfig="checkout/options/dibs_easy_checkout_enabled" type="dibs_easycheckout/checkout_link" name="dibs_easy.checkout.cart_sidebar.shortcut" template="dibs/easycheckout/link.phtml"/>
-        </reference>
     </default>
-
-    <checkout_cart_index>
-        <reference name="checkout.cart.top_methods">
-            <block ifconfig="checkout/options/dibs_easy_checkout_enabled" type="dibs_easycheckout/checkout_link"
-                   name="checkout.cart.top_methods.dibs_easycheckout" template="dibs/easycheckout/link.phtml"/>
-        </reference>
-
-        <reference name="checkout.cart.methods">
-            <block ifconfig="checkout/options/dibs_easy_checkout_enabled" type="dibs_easycheckout/checkout_link"
-                   name="checkout.cart.methods.dibs_easycheckout" template="dibs/easycheckout/link.phtml"/>
-        </reference>
-    </checkout_cart_index>
 
     <dibs_easycheckout_checkout_index>
         <label>Dibs Easy Checkout</label>
@@ -35,4 +17,8 @@
             <block type="dibs_easycheckout/checkout" name="dibs_easy_checkout" as="dibs_easy_checkout" template="dibs/easycheckout/checkout.phtml" />
         </reference>
     </dibs_easycheckout_checkout_index>
+    
+    <dibs_easycheckout_checkout_updateview>
+          <block type="dibs_easycheckout/totals" name="root" template="dibs/easycheckout/totals.phtml"></block>
+    </dibs_easycheckout_checkout_updateview>
 </layout>

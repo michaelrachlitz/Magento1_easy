@@ -10,12 +10,13 @@ class Dibs_EasyCheckout_Model_Observer extends Mage_Core_Model_Abstract
      */
     public function validateDibsEasyPaymentId($observer)
     {
+        /*
         $quote = $observer->getQuote();
         $grandTotal = (double)$quote->getGrandTotal();
         $dibsEasyGrandTotal = (double)$quote->getDibsEasyGrandTotal();
         if ($grandTotal != $dibsEasyGrandTotal) {
             $quote->setDibsEasyPaymentId('');
-        }
+        }*/
     }
 
     /**
