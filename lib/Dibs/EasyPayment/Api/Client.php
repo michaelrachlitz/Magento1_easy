@@ -82,7 +82,7 @@ class Dibs_EasyPayment_Api_Client {
         if (('POST' === $method || 'PUT' === $method) && count($data) > 0) {
             curl_setopt( $ch, CURLOPT_POST, true );
             curl_setopt( $ch, CURLOPT_POSTFIELDS, json_encode($data));
-            error_log(print_r($data, true));
+            error_log(json_encode($data));
         }
 
         $response = $this->prepareResponse($ch);
@@ -93,6 +93,7 @@ class Dibs_EasyPayment_Api_Client {
     protected function prepareResponse($ch)
     {
         $result = curl_exec($ch);
+       
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE );
         $response = new Dibs_EasyPayment_Api_Response($code, $result);
         if ($result === false) {

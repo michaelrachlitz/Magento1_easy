@@ -1,7 +1,7 @@
 <?php $shippingMethods = $this->getSippingMethods();
       //$shippingMethods = $shippingMethods['methods'];?>
 <?php if($shippingMethods): ?>
-    <div id="dibs-easy-shipping-title" class="dibs-easy-ctrl-title">Shipping Methods</div>
+    <div id="dibs-easy-shipping-title" class="dibs-easy-ctrl-title"><?php echo $this->__('Shipping Methods'); ?></div>
     <div id="dibs-easy-shipping-methods">
         <?php foreach($shippingMethods as $code=>$method): ?>
         <div class="dibs-easy-shipping-method-wrapper">
@@ -14,7 +14,7 @@
     </div>
 <?php endif;?>
 
-<div id="dibs-easy-ordersummary-title" class="dibs-easy-ctrl-title">Order Summary</div>
+<div id="dibs-easy-ordersummary-title" class="dibs-easy-ctrl-title"><?php echo $this->__('Order Summary')?></div>
 <table id="totals-table"> 
     <tbody>
         
@@ -56,10 +56,10 @@
                 <div class="primary">
                   <button id="easy-coupon-button-submit" class="action apply primary" type="submit">
                   <?php if(!$this->getCouponeCode()): ?>
-                    <span data-bind="text: coupone_button_lable">Apply Discount</span>
+                    <span data-bind="text: coupone_button_lable"><?php echo $this->__('Apply Discount'); ?></span>
                   <?php endif; ?>
                   <?php if($this->getCouponeCode()): ?>
-                    <span data-bind="text: coupone_button_lable">Cancel</span>
+                    <span data-bind="text: coupone_button_lable"><?php echo $this->__('Cancel'); ?></span>
                   <?php endif; ?>
                   </button>
                 </div>
@@ -83,7 +83,7 @@
   </tbody>
  </table>
 <div id="dibseasy-switch-checkout-screen">
-     <form action="http://magento2.local/checkout/">
-         <button type="submit" class="btn btn-outline-primary">Use other payment method</button>
+     <form action="<?php echo Mage::getUrl('checkout'); ?>">
+         <button type="submit" class="btn btn-outline-primary"><?php echo $this->__('Use other payment method');?></button>
      </form>
  </div>

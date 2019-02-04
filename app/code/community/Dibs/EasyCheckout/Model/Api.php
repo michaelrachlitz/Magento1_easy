@@ -180,13 +180,11 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
                 'reference' =>  $quote->getEntityId()
             ],
             'checkout' => [
-                'url' => Mage::getUrl('dibseasy/checkout', array('_secure'=>true))
-            ]
-        ];
-
+                'url' => Mage::getUrl('dibseasy/checkout', array('_secure'=>true)),
+             ]];
+        $this->setInvoiceFee($params, $quote);
         $this->setTermsAndConditionsUrl($params);
         $this->setCustomerTypes($params);
-
         return $params;
     }
     
@@ -211,12 +209,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     private function setTermsAndConditionsUrl(&$params)
     {
-        $termsUrl = 'http://termsandconditions.com';  //$this->_getDibsCheckoutHelper()->getTermsAndConditionsUrl();
-
-        if (!empty($termsUrl)) {
-            $params['checkout']['termsUrl'] = $termsUrl;
-        }
-
+        $params['checkout']['termsUrl'] = $this->_getDibsCheckoutHelper()->getTermsAndConditionsUrl();
         return $this;
     }
 
@@ -244,10 +237,8 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
                     break;
             }
         }
-
         $params['checkout']['supportedConsumerTypes'] = str_replace('_', ',', $customerTypesAllowed);
         $params['checkout']['defaultConsumerType'] = $default;
-
         return $this;
     }
 
@@ -267,9 +258,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
             }
             $result[] = $this->_getOrderLineItem($item);
         }
-
         $shippingAmount = (double)$quote->getShippingAddress()->getShippingInclTax();
-
         if ($shippingAmount > 0) {
             $carrierReference = $quote->getShippingAddress()->getShippingMethod();
             $carrierName = $quote->getShippingAddress()->getShippingDescription();
@@ -324,15 +313,12 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
             }
             $result[] = $this->_getOrderLineItem($item);
         }
-
         $shippingAmount = (double)$invoice->getShippingInclTax();
-
         if ($shippingAmount > 0) {
             $carrierReference = $invoice->getOrder()->getShippingMethod();
             $carrierName = $invoice->getOrder()->getShippingDescription();
             $result[] = $this->_getShippingLineItem($invoice, $carrierReference, $carrierName);
         }
-
         return $result;
     }
 
@@ -376,6 +362,52 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
         ];
 
         return $result;
+    }
+
+    /*
+     * Alpply invoice fee using simple product
+     */
+    protected function setInvoiceFee(&$params, Mage_Sales_Model_Quote $quote) 
+    {
+        $productInvoiceFeeId = $this->_getDibsCheckoutHelper()->getInvoiceFeeProductId();
+        if($productInvoiceFeeId) {
+            $productInvoiceFee = Mage::getModel('catalog/product')->load($productInvoiceFeeId);
+            $quoteCurrency = $quote->getQuoteCurrencyCode();
+            $country = null;
+            switch($quoteCurrency) {
+                case 'SEK':
+                    $country = 'SE';
+                break;
+            
+                case 'DKK':
+                   $country = 'DK';
+                break;
+            
+                case 'NOK':
+                   $country = 'NO';
+            }
+            $quote->getShippingAddress()->setCountryId($country)->save();
+            $price = Mage::helper('tax')->getPrice($productInvoiceFee, $productInvoiceFee->getPrice(), false,
+                    $quote->getShippingAddress(), $quote->getBillingAddress());
+            if($productInvoiceFee->getId()) {
+                $taxPercent = $productInvoiceFee->getTaxPercent();
+                $taxAmount = ($productInvoiceFee->getPrice() / 100) * $productInvoiceFee->getTaxPercent();
+                $params["paymentMethods"] = [
+                            ["name" => "easyinvoice",
+                             "fee" => [
+                                 'reference'         =>  $productInvoiceFee->getSku(),
+                                 'name'              =>  $productInvoiceFee->getName(),
+                                 'quantity'          =>  1,
+                                 'unit'              =>  'psc',
+                                 'unitPrice'         =>  $this->getDibsIntVal($price),
+                                 'taxRate'           =>  $this->getDibsIntVal($taxPercent),
+                                 'taxAmount'         =>  $this->getDibsIntVal($taxAmount),
+                                 'grossTotalAmount'  =>  $this->getDibsIntVal($price),
+                                 'netTotalAmount'    =>  $this->getDibsIntVal($price)]]
+                           ];
+            }
+        }
+        return $this;
     }
 
     /**

@@ -89,22 +89,15 @@ class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
      */
     public function getTermsAndConditionsUrl()
     {
-        $result = '';
-        $linkType = Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_TERMS_CONDITIONS_LINK_TYPE);
-        switch ($linkType) {
-            case Dibs_EasyCheckout_Model_Config::CONFIG_TERMS_CONDITIONS_LINK_TYPE_DIRECT:
-                $result = Mage::getStoreConfig(
-                    Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_TERMS_CONDITIONS_DIRECT_LINK
-                );
-                break;
-            case Dibs_EasyCheckout_Model_Config::CONFIG_TERMS_CONDITIONS_LINK_TYPE_CMS_PAGE:
-                $cmsPageId = Mage::getStoreConfig(
-                    Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_TERMS_CONDITIONS_CMS_LINK
-                );
-                $result = Mage::helper('cms/page')->getPageUrl($cmsPageId);
-                break;
-        }
+        $result = Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_TERMS_CONDITIONS_LINK);
+        return $result;
+    }
 
+    /*
+     * @return mixed
+     */
+    public function getInvoiceFeeProductId() {
+        $result = Mage::getStoreConfig(Dibs_EasyCheckout_Model_Config::XML_CONFIG_PATH_PRODUCT_INVOICE_FEE_ID);
         return $result;
     }
 

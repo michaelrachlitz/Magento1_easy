@@ -8,11 +8,7 @@ class Dibs_EasyCheckout_Model_Config
 
     const PAYMENT_CHECKOUT_METHOD = 'dibs_easy_checkout';
 
-    const XML_CONFIG_PATH_TERMS_CONDITIONS_LINK_TYPE = 'payment/dibs_easy_checkout/terms_and_conditions_link_type';
-
-    const XML_CONFIG_PATH_TERMS_CONDITIONS_DIRECT_LINK = 'payment/dibs_easy_checkout/terms_and_conditions_link_direct';
-
-    const XML_CONFIG_PATH_TERMS_CONDITIONS_CMS_LINK = 'payment/dibs_easy_checkout/terms_and_conditions_link_cms_page';
+    const XML_CONFIG_PATH_TERMS_CONDITIONS_LINK = 'payment/dibs_easy_checkout/terms_and_conditions_link';
 
     const XML_CONFIG_PATH_CUSTOMER_TYPE = 'payment/dibs_easy_checkout/allowed_customer_types';
 
@@ -31,10 +27,8 @@ class Dibs_EasyCheckout_Model_Config
     const XML_CONFIG_PATH_CARRIER = 'payment/dibs_easy_checkout/carrier';
 
     const XML_CONFIG_PATH_ENABLED = 'payment/dibs_easy_checkout/enabled';
-
-    const CONFIG_TERMS_CONDITIONS_LINK_TYPE_DIRECT = 'direct';
-
-    const CONFIG_TERMS_CONDITIONS_LINK_TYPE_CMS_PAGE = 'cms_page';
+    
+    const XML_CONFIG_PATH_PRODUCT_INVOICE_FEE_ID = 'payment/dibs_easy_checkout/invoice_fee_product_id';
 
     const CONFIG_CUSTOMER_TYPE_B2B = 'B2B';
 
@@ -55,4 +49,5 @@ class Dibs_EasyCheckout_Model_Config
     const DEFAULT_CHECKOUT_LANGUAGE = 'en-GB';
 
     const DIBS_EASY_SHIPPING_METHOD = 'dibs_easy_freeshipping_dibs_easy_freeshipping';
+    
 }

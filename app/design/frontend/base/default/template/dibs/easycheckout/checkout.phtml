@@ -1,13 +1,12 @@
 <?= $this->getSessionError() ?>
-
-<div class="page-title-easy"> Cart items</div>
+<div class="page-title-easy"> <?php echo $this->__('Cart items');?></div>
 <table id="dibseasy-cart-table">
 
         <tr id="dibs-easy-cart-thead">
             <td></td>
             <td>qty</td>
-            <td class="col price">Price</td>
-            <td style="padding-left:15px;">Subtotal</td>
+            <td class="col price"><?php echo $this->__('Price'); ?></td>
+            <td style="padding-left:15px;"><?php echo $this->__('Subtotal');?></td>
         </tr>
 
   <?php foreach($this->getCartProducts() as $product):?> 
@@ -27,7 +26,7 @@
              <span class="dibs-easy-cart-subtotal"> <?= $product['subtotal'] ?> </span>
              <span class="dibs-easy-remove-link"> <a class="dibs-easy-remove-link-a" 
              onclick="return confirm('<?php echo Mage::helper('core')->quoteEscape($this->__('Are you sure you would like to remove this item from the shopping cart?'), true) ?>');"
-             style="color:#007FB0;" href="<?= $this->getUrl('dibseasy/checkout/removeItem/' . 'id/' . $product['id']); ?>">Remove</a></span>
+             style="color:#007FB0;" href="<?= $this->getUrl('dibseasy/checkout/removeItem/' . 'id/' . $product['id']); ?>"><?php echo $this->__('Remove');?></a></span>
          </td>
     </tr>
  <?php endforeach; ?>
@@ -47,7 +46,7 @@
 <div id="dibs-easy-window">
     <div id="dibs-complete-checkout"></div>
     <div id="dibseasy-switch-checkout-mobile"> 
-        <button id="dibseasy-switch-checkout-mobile" type="submit" class="btn btn-outline-primary">Use other payment method</button>
+        <button id="dibseasy-switch-checkout-mobile" type="submit" class="btn btn-outline-primary"><?php echo $this->__('Use other payment method'); ?></button>
     </div>
 </div>
     
@@ -73,15 +72,9 @@
         updateView({'action':'address-changed', 'customerisloggedin':customerIsLoggedIn});
     });
     //]]>
-    
-    
     var $_ = jQuery;
     var previousVal = null;
- 
-    
     updateView({'action':'start', 'customerisloggedin':customerIsLoggedIn});
- 
-    
     $_('.dibs-easy-qty-td input').focus(function(){
         previousVal = $_(this).val();
     });
@@ -97,25 +90,12 @@
 
     });
 
-    $_('.quantity-button').click(function(){
-        console.log('hello, man!!');
-    });
-    
     $_('block-discount-heading').click(function(){
         $_('#discount-form').show();
     });
-    
-    $_('#coupone-title').click(function(){
-        alert(123);
-    });
-    
+
     function couponControl(el) {
-       
-       $_('#coupon-form').toggle();
-        //if($_(el).attr("class") === "opened" && )
-        //addClass("blue");
-        
-        //alert($_(el).attr("class"));
+      $_('#coupon-form').toggle();
     }
     
     function isValidQty(val) {
@@ -129,40 +109,20 @@
     }
 
     function updateView (params) {
-       
-        ct = this; 
-        checkout.freezeCheckout();
+       ct = this; 
+       checkout.freezeCheckout();
        $_('#loader').show();
        $_.post("<?= $this->getUpdateViewUrl()?>", params ,function() {
        }).done(function(result) {
-           
-            //console.log(result);
-            //var parsed = JSON.parse(result); 
-            
-            
-            if(result.exception == 1 && customerIsLoggedIn == true) {
+            if(result.exception == 1) {
                 window.location.href = "<?= $this->getUrl('checkout/cart') ?>";
             }
-
-            
             $_('#loader').hide();
             $_('#dibs-easy-controls').html(result.outputHtml);
-      
-            // 
-            // 
-            // 
-            // var parsed = JSON.parse(result);
-            // if(parsed.hasOwnProperty('exception')) {
-             //    window.location.href = "<?= $this->getCartUrl()?>";
-            // }
-            // console.log(parsed);
-            
             ct.checkout.thawCheckout();
-              
-       
        });
     }
-    
+
     var loadingOverlay = document.querySelector('.loading');
 function toggleLoading(event){
   if (event.keyCode !== 13) return;
@@ -177,12 +137,4 @@ function toggleLoading(event){
 }
 
 document.addEventListener('keydown', toggleLoading);
-
-function showAlert(){
-  alert('de knop werkt!');
-}
-
-var testButton = document.getElementById('testButton');
-testButton.addEventListener('click', showAlert);
-    
 </script>
