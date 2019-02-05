@@ -74,10 +74,11 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         $quote->setDibsEasyIsCreatingPayment(true);
         $this->_setPaymentMethod($quote, $payment);
         /** @var Dibs_EasyCheckout_Model_Api $api */
+        // Temporari disable validation
+        /*
         $api = Mage::getModel('dibs_easycheckout/api');
         $quoteDibsTotal = $api->getDibsIntVal($quote->getGrandTotal());
         $reservedDibsAmount = $payment->getSummary()->getData('reservedAmount');
-        /*
         if ($quoteDibsTotal > $reservedDibsAmount) {
             $reservedDibsAmountRegular = $api->convertDibsValToRegular($reservedDibsAmount);
             $helper = $this->_getHelper();
@@ -219,11 +220,6 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         $values = array();
         $values['shipping_methods'] = $this->getShippinMethods();
         $values['totals'] = $this->getTotals(); 
-        $api = Mage::getModel('dibs_easycheckout/api');
-        $paymentId = $this->getQuote()->getDibsEasyPaymentId();
-        $quote = $this->getQuote();
-        $totals = $quote->getTotals();
-        $api->updateCart($quote, $paymentId);
         return $values;
     }
 
