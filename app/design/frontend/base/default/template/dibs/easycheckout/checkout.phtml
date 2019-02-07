@@ -110,7 +110,6 @@
 
     function updateView (params) {
        ct = this;
-       checkout.freezeCheckout();
        $_('#loader').show();
        $_.post("<?= $this->getUpdateViewUrl()?>", params ,function() {
        }).done(function(result) {
