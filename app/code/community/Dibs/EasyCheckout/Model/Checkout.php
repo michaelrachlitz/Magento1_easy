@@ -36,7 +36,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
      */
     public function validatePayment(Mage_Sales_Model_Quote $quote, Dibs_EasyCheckout_Model_Api_Payment $payment)
     {
-        $result = true;
+        $result = false;
         /** @var Dibs_EasyCheckout_Model_Api $api */
         $api = Mage::getModel('dibs_easycheckout/api');
         if ($payment->getOrderDetails()->getData('amount') == $api->getDibsQuoteGrandTotal($quote)
@@ -86,6 +86,12 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
             $message = $helper->__($errorText, $reservedDibsAmountRegular, $quote->getGrandTotal());
             throw new Dibs_EasyCheckout_Model_Exception($message);
         }*/
+
+        if(empty($payment->getSummary()->getData('reservedAmount'))) {
+            $message = $helper->__('Reserved amount is emapty');
+            throw new Dibs_EasyCheckout_Model_Exception($message);
+        }
+
         $quote->setDibsEasyGrandTotal($quote->getGrandTotal());
         if ($quote->getCheckoutMethod() == Mage_Checkout_Model_Type_Onepage::METHOD_GUEST) {
             $this->_prepareGuestCustomerQuote($quote);
