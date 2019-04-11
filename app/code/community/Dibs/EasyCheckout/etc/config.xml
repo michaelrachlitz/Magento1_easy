@@ -161,6 +161,8 @@
                 <sort_order>999</sort_order>
                 <terms_and_conditions_link_type>direct</terms_and_conditions_link_type>
                 <allowed_customer_types>B2C</allowed_customer_types>
+                <live_secret_key backend_model="adminhtml/system_config_backend_encrypted" />
+                <test_secret_key backend_model="adminhtml/system_config_backend_encrypted" />
             </dibs_easy_checkout>
         </payment>
     </default>

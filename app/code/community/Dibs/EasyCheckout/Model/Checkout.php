@@ -204,6 +204,7 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         }
         $tax = $quote->getShippingAddress()->getTaxAmount();
         $currency = $quote->getQuoteCurrencyCode();
+        $taxHtml = '';
         if($tax > 0) {
             $taxHtml = '<br><span id="dibs-easy-incl-tax">(Incl. <span id="dibs-easy-incl-tax-amount">  '
                        . $tax . ' </span>  <span id="dibs-easy-incl-tax-symbol">' 

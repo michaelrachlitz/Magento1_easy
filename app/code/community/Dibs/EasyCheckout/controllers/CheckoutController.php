@@ -159,7 +159,7 @@ class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Ac
               break;
 
               case 'start':
-                $dibsCheckout->start($ship);
+                $dibsCheckout->start();
               break;
         }
              $this->loadLayout();

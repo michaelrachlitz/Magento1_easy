@@ -37,6 +37,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                             <depends><enabled>1</enabled></depends>
+                            <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
                         </live_secret_key>
                         <test_secret_key translate="label">
                             <label>Test Secret Key</label>
@@ -46,6 +47,7 @@
                             <show_in_website>1</show_in_website>
                             <show_in_store>0</show_in_store>
                             <depends><enabled>1</enabled></depends>
+                            <backend_model>adminhtml/system_config_backend_encrypted</backend_model>
                         </test_secret_key>
                         <live_checkout_key translate="label">
                             <label>Live Checkout Key</label>

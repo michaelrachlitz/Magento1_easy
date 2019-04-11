@@ -24,10 +24,11 @@ class Dibs_EasyCheckout_Model_Api_Payment_Consumer
      */
     public function __construct($data)
     {
-        $this->billingAddress = new Dibs_EasyCheckout_Model_Api_Payment_Consumer_Address($data['billingAddress']);
-        $this->shippingAddress = new Dibs_EasyCheckout_Model_Api_Payment_Consumer_Address($data['shippingAddress']);
-        $this->company = new Dibs_EasyCheckout_Model_Api_Payment_Consumer_Company($data['company']);
-        $this->privatePerson = new Dibs_EasyCheckout_Model_Api_Payment_Consumer_PrivatePerson($data['privatePerson']);
+        $billingAddress = isset($data['billingAddress']) ? $data['billingAddress'] : array();
+        $this->billingAddress = Mage::getModel('dibs_easycheckout/api_payment_consumer_address', $billingAddress);
+        $this->shippingAddress = Mage::getModel('dibs_easycheckout/api_payment_consumer_address', $data['shippingAddress']);
+        $this->company = Mage::getModel('dibs_easycheckout/api_payment_consumer_company', $data['company']);
+        $this->privatePerson = Mage::getModel('dibs_easycheckout/api_payment_consumer_PrivatePerson', $data['privatePerson']);
     }
 
     /**
