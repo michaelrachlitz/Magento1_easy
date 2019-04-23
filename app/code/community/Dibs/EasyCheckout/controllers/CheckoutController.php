@@ -146,18 +146,15 @@ class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Ac
         $state = $this->getRequest()->getParam('customerisloggedin');
         $helper = Mage::helper('dibs_easycheckout');
         $dibsCheckout = Mage::getModel('dibs_easycheckout/checkout');
-        
         try {
             switch($action) {
               case 'address-changed':
                 $dibsCheckout->changeShippingAddress();
               break;
-
               case 'set-shipping-method':
                 $shippingRateCode = $this->getRequest()->getParam('shipping_rate_code');
                 $dibsCheckout->setShippingMethod($shippingRateCode);
               break;
-
               case 'start':
                 $dibsCheckout->start();
               break;
