@@ -1,6 +1,6 @@
 # Magento 1 Module for Easy Checkout #
 
-This is the Magento 1 module for DIBS Easy Checkout, for more information see the following
+This is the Magento 1 module for NETS Easy Checkout, for more information see the following
 
 [Easy Checkout](http://tech.dibspayment.com/easy/)
 
