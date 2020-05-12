@@ -6,7 +6,7 @@
 class Dibs_EasyCheckout_Helper_Data extends Mage_Core_Helper_Abstract
 {
     // For now we support only SEK
-    protected $_supportedCurrencies = ['SEK','NOK','DKK'];
+    protected $_supportedCurrencies = ['SEK','NOK','DKK', 'EUR', 'USD'];
 
     protected $_supportedLanguages = ['en-GB','sv-SE','nb-NO','da-DK'];
 
