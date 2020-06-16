@@ -473,10 +473,12 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     protected function _getItemGrossTotalAmount(Mage_Core_Model_Abstract $item)
     {
-        $itemGrossTotal =  (double)$item->getRowTotal(); //- (double)abs($item->getDiscountAmount()); 
-        //(double)$item->getRowTotalInclTax() - (double)$item->getDiscountAmount();
+        if(Mage::helper('tax')->priceIncludesTax() && Mage::helper('tax')->applyTaxAfterDiscount()) {
+            $itemGrossTotal =  ((double)$item->getPriceInclTax() * (int)$item->getQty()) - (double)abs($item->getDiscountAmount());
+        } else {
+            $itemGrossTotal =  ((double)$item->getPrice() * (int)$item->getQty()) + (double)$item->getTaxAmount() - (double)$item->getDiscountAmount();
+        }
         $result = $this->getDibsIntVal($itemGrossTotal);
-
         return $result;
     }
 

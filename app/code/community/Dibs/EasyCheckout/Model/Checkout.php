@@ -214,7 +214,13 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         if(abs($discountAmount) > 0) {
             $discountAmount = $this->_getHelper()->formatPrice($discountAmount);
             $discountDescription = $quote->getShippingAddress()->getDiscountDescription();
-            $totals['discount'] = ['id'=>'discount', 'label'=> 'Discount (' . $discountDescription . ')', 'value'=> $discountAmount];
+
+            if ($discountDescription) {
+                $totals['discount'] = ['id' => 'discount', 'label' => 'Discount (' . $discountDescription . ')', 'value' => $discountAmount];
+            } else {
+                $totals['discount'] = ['id' => 'discount', 'label' => 'Discount', 'value' => $discountAmount];
+            }
+
         }
         $totals['grand_total'] = array('id' => 'grand_total', 'value' =>$this->_getHelper()->formatPrice($quote->getGrandTotal()), 'label'=>'Grand Total' . $taxHtml);
         return $totals;
