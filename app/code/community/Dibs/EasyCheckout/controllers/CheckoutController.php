@@ -10,10 +10,18 @@ class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Ac
     /**
      * Page where payment is initiated
      */
-    public function indexAction()
+
+   public function indexAction()
     {
         /** @var Dibs_EasyCheckout_Helper_Data $helper */
         $helper = Mage::helper('dibs_easycheckout');
+
+        if(!$helper->getQuote()->getId()) {
+            $quote = Mage::getModel('sales/quote')->load($this->getRequest()->getParam('qid'));
+            $quote->setIsActive(true)->save();
+            $checkoutSession = Mage::getSingleton('checkout/session');
+            $checkoutSession->replaceQuote($quote);
+        }
 
         if (!$helper->isEasyCheckoutAvailable()) {
             $this->_redirect('checkout/cart');
@@ -80,6 +88,7 @@ class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Ac
             $payment = $api->findPayment($paymentId);
 
             $isValidPayment = $dibsCheckout->validatePayment($quote, $payment);
+
             if ($isValidPayment) {
                 $dibsCheckout->createOrder($quote, $payment);
             } else {

@@ -39,14 +39,13 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         $result = false;
         /** @var Dibs_EasyCheckout_Model_Api $api */
         $api = Mage::getModel('dibs_easycheckout/api');
-        if ($payment->getOrderDetails()->getData('amount') == $api->getDibsQuoteGrandTotal($quote)
-            && $payment->getOrderDetails()->getData('reference') == $quote->getId()
+        if (//$payment->getOrderDetails()->getData('amount') == $api->getDibsQuoteGrandTotal($quote) &&
+            $payment->getOrderDetails()->getData('reference') == $quote->getId()
             && $payment->getPaymentId() == $quote->getDibsEasyPaymentId()
             && $payment->getOrderDetails()->getData('currency') == $quote->getQuoteCurrencyCode()
         ) {
             $result = true;
         }
-
         return $result;
     }
 

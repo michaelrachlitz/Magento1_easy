@@ -180,7 +180,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
                 'reference' =>  $quote->getEntityId()
             ],
             'checkout' => [
-                'url' => Mage::getUrl('dibseasy/checkout', array('_secure'=>true))]];
+              'url' => Mage::getUrl('dibseasy/checkout', array( 'qid' => $quote->getId(), '_secure'=>true))]];
         if(Mage::getModel('customer/session')->isLoggedIn()
               && $this->validateAddress()) {
         $phoneNumber = $this->extractPhone();
