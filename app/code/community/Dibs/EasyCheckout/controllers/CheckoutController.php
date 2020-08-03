@@ -13,6 +13,7 @@ class Dibs_EasyCheckout_CheckoutController extends Mage_Core_Controller_Front_Ac
 
    public function indexAction()
     {
+
         /** @var Dibs_EasyCheckout_Helper_Data $helper */
         $helper = Mage::helper('dibs_easycheckout');
 

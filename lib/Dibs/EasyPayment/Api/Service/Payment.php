@@ -20,6 +20,10 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
     /** @var Dibs_EasyPayment_Api_Service_Action_Payment_Update  */
     protected $update;
 
+    /** @var Dibs_EasyPayment_Api_Service_Action_Payment_UpdateReference */
+    protected $updateReference;
+
+
     /**
      * DibsEasyPayment_Api_Resource_Payment constructor.
      *
@@ -33,6 +37,8 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
         $this->charge = new Dibs_EasyPayment_Api_Service_Action_Payment_Charge($this);
         $this->cancel = new Dibs_EasyPayment_Api_Service_Action_Payment_Cancel($this);
         $this->update = new Dibs_EasyPayment_Api_Service_Action_Payment_Update($this);
+        $this->updateReference = new Dibs_EasyPayment_Api_Service_Action_Payment_UpdateReference($this);
+
     }
 
     /**
@@ -80,10 +86,22 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
         $result = $this->cancel->request($paymentId, $params);
         return $result;
     }
-    
+
+    /**
+     * @param $paymentId
+     * @param $params
+     * @return Dibs_EasyPayment_Api_Response
+     */
     public function update($paymentId, $params) 
     {
         $result = $this->update->request($paymentId, $params);
         return $result;
+    }
+
+
+    public function updateReference($paymentId, $params)
+    {
+        $resul = $this->updateReference->request($paymentId, $params);
+        return $resul;
     }
 }

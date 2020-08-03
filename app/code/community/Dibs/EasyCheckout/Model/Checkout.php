@@ -107,6 +107,16 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
         if (!$order->getId()) {
             Mage::throwException($this->getHelper()->__('Order cannot be created, cart not valid') . ' ' . $quote->getId());
         }
+
+        // update orederid in Easy portal
+        /** @var Dibs_EasyCheckout_Model_Api $api */
+        $checkoutData = $payment->getCheckout()->getData();
+        $params = ['reference' => $order->getIncrementId(),
+                   'checkoutUrl' => $checkoutData['url']];
+        /** @var Dibs_EasyCheckout_Model_Api $api */
+        $api = Mage::getModel('dibs_easycheckout/api');
+        $api->updateReference($payment->getPaymentId(), $params);
+
         // Update Order
         /** @var $order Mage_Sales_Model_Order */
         $oderStatus = $this->_getHelper()->getNewOrderStatus();
