@@ -366,7 +366,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
             'name'              =>  $name,
             'quantity'          =>  (int)$item->getQty(),
             'unit'              =>  1,
-            'unitPrice'         =>  $this->getDibsIntVal($item->getPrice()),
+            'unitPrice'         =>  $this->_getItemNetTotalAmount($item),
             'taxRate'           =>  $this->getDibsIntVal($item->getTaxPercent()),
             'taxAmount'         =>  $this->_getItemTaxAmount($item),
             'grossTotalAmount'  =>  $this->_getItemGrossTotalAmount($item),
