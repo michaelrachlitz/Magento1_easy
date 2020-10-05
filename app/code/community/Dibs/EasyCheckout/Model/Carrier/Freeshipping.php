@@ -3,9 +3,7 @@
 /**
  * Class Dibs_EasyCheckout_Model_Carrier_Freeshipping
  */
-class Dibs_EasyCheckout_Model_Carrier_Freeshipping
-    extends Mage_Shipping_Model_Carrier_Abstract
-    implements Mage_Shipping_Model_Carrier_Interface
+class Dibs_EasyCheckout_Model_Carrier_Freeshipping extends Mage_Shipping_Model_Carrier_Abstract implements Mage_Shipping_Model_Carrier_Interface
 {
 
     /**

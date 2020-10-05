@@ -3,10 +3,10 @@
 /**
  * Class Dibs_EasyCheckout_Block_Totals
  */
-class Dibs_EasyCheckout_Block_Totals extends Mage_Core_Block_Template
+class Dibs_EasyCheckout_Block_Totals extends Mage_Checkout_Block_Onepage_Abstract
 {
-
-    public function getSippingMethods() {
+    public function getShippingMethods() {
+        /** @var Dibs_EasyCheckout_Model_Checkout $dibsCheckout */
         $dibsCheckout = Mage::getModel('dibs_easycheckout/checkout');
         $gridValues = $dibsCheckout->getGridValues();
         return $gridValues['shipping_methods'];
@@ -29,5 +29,10 @@ class Dibs_EasyCheckout_Block_Totals extends Mage_Core_Block_Template
 
     public function getCheckoutUrl() {
         return Mage::getUrl('dibs_easycheckout/checkout');
+    }
+
+    public function getAddress()
+    {
+        Mage::getSingleton('checkout/session')->getQuote()->getShippingAddress();
     }
 }

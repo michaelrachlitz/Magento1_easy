@@ -44,9 +44,8 @@ class Dibs_EasyPayment_Api_Client {
         $headers = [
             'Content-Type: application/json',
             'Accept: application/json',
-	    'Authorization: '.$this->secretKey,
-	    'commercePlatformTag: MG1Easy'
-
+            'Authorization: '.$this->secretKey,
+            'commercePlatformTag: MG1Easy'
         ];
 
         return $headers;
@@ -64,8 +63,8 @@ class Dibs_EasyPayment_Api_Client {
      * @param $url
      * @param $method
      * @param array $data
-     *
      * @return Dibs_EasyPayment_Api_Response
+     * @throws Dibs_EasyPayment_Api_Exception_Response
      */
     public function request($url, $method, $data = [])
     {
@@ -90,15 +89,15 @@ class Dibs_EasyPayment_Api_Client {
     protected function prepareResponse($ch)
     {
         $result = curl_exec($ch);
-       
+
         $code = curl_getinfo($ch, CURLINFO_HTTP_CODE );
         $response = new Dibs_EasyPayment_Api_Response($code, $result);
         if ($result === false) {
-            $response->setResponse(json_encode(['message'=> curl_error($ch)]));
+            $response->setResponse(json_encode(['message' => curl_error($ch)]));
         }
 
         if (empty($result) && $code != 200) {
-            $response->setResponse(json_encode(['message'=> 'CURL Error ', $code]));
+            $response->setResponse(json_encode(['message' => 'CURL Error ', $code]));
         }
 
         if (in_array($code, [200, 201, 204])) {

@@ -59,31 +59,42 @@ class Dibs_EasyCheckout_Block_Checkout extends Mage_Core_Block_Template
     /**
      * @return array
      */
-    public function getCartProducts() {
+    public function getCartProducts()
+    {
         $quote = Mage::helper('checkout/cart')->getCart()->getQuote();
         $value = [];
-        foreach ($quote->getAllItems() as $item) {
-            $price = $item->getParentItemId()?  $item->getParentItem()->getPrice(): $item->getPrice();
-            $formattedPrice = str_replace('.', ',', Mage::getModel('directory/currency')->formatTxt($price, array('display' => Zend_Currency::NO_SYMBOL)));
-            $subtotal = str_replace('.', ',', Mage::getModel('directory/currency')->formatTxt($price, array('display' => Zend_Currency::NO_SYMBOL)));
+        foreach ($quote->getAllVisibleItems() as $item) {
+            /** @var Mage_Sales_Model_Quote_Item $item */
+
+            $price = $item->getParentItemId()?  $item->getParentItem()->getPrice() : $item->getPrice();
+            $productOptions = $item->getProduct()->getTypeInstance(true)->getOrderOptions($item->getProduct());
+
+            $attributesInfo = null;
+            if ($productOptions && isset($productOptions['attributes_info'])) {
+                $attributesInfo = $productOptions['attributes_info'];
+            }
+
             $value[]= array (
-            'id' => $item->getId(),
-            'product_url' => $item->getProduct()->getProductUrl(),
-            'name' => $item->getName(),
-            'quantity' => $item->getQty(),
-            'price' => $formattedPrice,
-            'subtotal' => $subtotal,
-            'thumb_url' =>  $this->getProductThumbnailUrl($item->getProduct())->__toString());
+                'id' => $item->getId(),
+                'product_url' => $item->getProduct()->getProductUrl(),
+                'name' => $item->getName(),
+                'attributes_info' => $attributesInfo,
+                'quantity' => $item->getQty(),
+                'price' => Mage::helper('core')->currency($price, true, false),
+                'subtotal' => Mage::helper('core')->currency($item->getBaseRowTotalInclTax(), true, false),
+                'thumb_url' =>  $this->getProductThumbnailUrl($item->getProduct())->__toString()
+            );
         }
-        return (object)$value;
+        return $value;
     }
 
-    public function getUpdateCartUrl() {
+    public function getUpdateCartUrl()
+    {
         return Mage::getUrl('dibseasy/checkout/updateItem');
     }
 
     /**
-     * 
+     *
      * @param type $product
      * @return string            )
      */
@@ -91,22 +102,24 @@ class Dibs_EasyCheckout_Block_Checkout extends Mage_Core_Block_Template
     {
         return Mage::helper('catalog/image')->init($product, 'thumbnail')->resize(82, 82);
     }
-    
-    public function getUpdateViewUrl() {
+
+    public function getUpdateViewUrl()
+    {
         return Mage::getUrl('dibseasy/checkout/UpdateView');
     }
-    
-    public function getCartUrl() {
+
+    public function getCartUrl()
+    {
         return Mage::getUrl('checkout/cart');
     }
-    
-    public function getSessionError() {
-        
-        $smessages = Mage::getSingleton('checkout/session')->getMessages()->getItems();
+
+    public function getSessionError()
+    {
+        $messages = Mage::getSingleton('checkout/session')->getMessages()->getItems();
         $output = NULL;
-        foreach ($smessages as $smessage) {
-        $output .= $smessage->getText();
+        foreach ($messages as $message) {
+            $output .= $message->getText();
         }
-        //return Mage::getSingleton('checkout/session');
+        return $output;
     }
 }
