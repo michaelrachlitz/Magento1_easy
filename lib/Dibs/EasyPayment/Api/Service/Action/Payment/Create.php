@@ -53,9 +53,8 @@ class Dibs_EasyPayment_Api_Service_Action_Payment_Create extends Dibs_EasyPaymen
 
     /**
      * @param $params
+     *
      * @return Dibs_EasyPayment_Api_Response
-     * @throws Dibs_EasyPayment_Api_Exception_Request
-     * @throws Dibs_EasyPayment_Api_Exception_Response
      */
     public function request($params)
     {

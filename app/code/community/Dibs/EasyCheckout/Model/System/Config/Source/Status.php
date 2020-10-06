@@ -11,7 +11,11 @@ class Dibs_EasyCheckout_Model_System_Config_Source_Status
 
     public function toOptionArray()
     {
-        $statuses = Mage::getSingleton('sales/order_config')->getStatuses();
+        if ($this->_stateStatuses) {
+            $statuses = Mage::getSingleton('sales/order_config')->getStateStatuses($this->_stateStatuses);
+        } else {
+            $statuses = Mage::getSingleton('sales/order_config')->getStatuses();
+        }
 
         $options = array(
             array(
@@ -26,7 +30,6 @@ class Dibs_EasyCheckout_Model_System_Config_Source_Status
                 'label' => $label
             );
         }
-
         return $options;
     }
 }

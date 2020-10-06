@@ -29,7 +29,6 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
     public function createPayment(Mage_Sales_Model_Quote $quote)
     {
         $result = null;
-        /** @var Dibs_EasyPayment_Api_Service_Payment $paymentService */
         $paymentService = $this->getPaymentService();
         $createPaymentParams = $this->_getCreatePaymentParams($quote);
         $response = $paymentService->create($createPaymentParams);
@@ -191,7 +190,7 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
      */
     protected function _getCreatePaymentParams(Mage_Sales_Model_Quote $quote)
     {
-        $params = [
+      $params = [
             'order' => [
                 'items'     =>  $this->_getQuoteItems($quote),
                 'amount'    =>  $this->getDibsQuoteGrandTotal($quote),
@@ -199,30 +198,31 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
                 'reference' =>  $quote->getEntityId()
             ],
             'checkout' => [
-                'url' => Mage::getUrl('dibseasy/checkout', array( 'qid' => $quote->getId(), '_secure'=>true))
-            ]
-        ];
-
-        if (Mage::getModel('customer/session')->isLoggedIn()) {
-            $params['checkout']['consumer'] =
-                ['email'=> $this->getCustomer()->getEmail(),
+              'url' => Mage::getUrl('dibseasy/checkout', array( 'qid' => $quote->getId(), '_secure'=>true))]];
+        if(Mage::getModel('customer/session')->isLoggedIn()
+              && $this->validateAddress()) {
+        $phoneNumber = $this->extractPhone();
+        $params['checkout']['consumer'] =
+              ['email'=> $this->getCustomer()->getEmail(),
                     'shippingAddress'=> $this->getCustomerShippingAddress(),
-                    'phoneNumber'=> $this->extractPhone(),
+                    'phoneNumber'=> [
+                        'prefix'=> $phoneNumber['prefix'],
+                        'number'=> $phoneNumber['phone']],
                     'privatePerson'=> [
                         'firstName'=> $this->getCustomer()->getFirstname(),
-                        'lastName'=> $this->getCustomer()->getLastname()
-                    ]
-                ];
-        }
-        $this->setInvoiceFee($params, $quote);
-        $this->setTermsAndConditionsUrl($params);
-        $this->setCustomerTypes($params);
-        return $params;
+                        'lastName'=> $this->getCustomer()->getLastname()]
+               ];
+        $params['checkout']['merchantHandlesConsumerData'] = true;
+      }
+      $this->setInvoiceFee($params, $quote);
+      $this->setTermsAndConditionsUrl($params);
+      $this->setCustomerTypes($params);
+      return $params;
     }
 
     /**
      * @param Mage_Sales_Model_Quote $quote
-     *
+     * 
      * @return array
      */
     protected function _getUpadtePaymentParams(Mage_Sales_Model_Quote $quote)
@@ -408,34 +408,34 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
             switch($quoteCurrency) {
                 case 'SEK':
                     $country = 'SE';
-                    break;
+                break;
 
                 case 'DKK':
-                    $country = 'DK';
-                    break;
+                   $country = 'DK';
+                break;
 
                 case 'NOK':
-                    $country = 'NO';
+                   $country = 'NO';
             }
             $quote->getShippingAddress()->setCountryId($country)->save();
             $price = Mage::helper('tax')->getPrice($productInvoiceFee, $productInvoiceFee->getPrice(), false,
-                $quote->getShippingAddress(), $quote->getBillingAddress());
+                    $quote->getShippingAddress(), $quote->getBillingAddress());
             if($productInvoiceFee->getId()) {
                 $taxPercent = $productInvoiceFee->getTaxPercent();
                 $taxAmount = ($productInvoiceFee->getPrice() / 100) * $productInvoiceFee->getTaxPercent();
                 $params["paymentMethods"] = [
-                    ["name" => "easyinvoice",
-                        "fee" => [
-                            'reference'         =>  $productInvoiceFee->getSku(),
-                            'name'              =>  $productInvoiceFee->getName(),
-                            'quantity'          =>  1,
-                            'unit'              =>  'psc',
-                            'unitPrice'         =>  $this->getDibsIntVal($price),
-                            'taxRate'           =>  $this->getDibsIntVal($taxPercent),
-                            'taxAmount'         =>  $this->getDibsIntVal($taxAmount),
-                            'grossTotalAmount'  =>  $this->getDibsIntVal($price),
-                            'netTotalAmount'    =>  $this->getDibsIntVal($price)]]
-                ];
+                            ["name" => "easyinvoice",
+                             "fee" => [
+                                 'reference'         =>  $productInvoiceFee->getSku(),
+                                 'name'              =>  $productInvoiceFee->getName(),
+                                 'quantity'          =>  1,
+                                 'unit'              =>  'psc',
+                                 'unitPrice'         =>  $this->getDibsIntVal($price),
+                                 'taxRate'           =>  $this->getDibsIntVal($taxPercent),
+                                 'taxAmount'         =>  $this->getDibsIntVal($taxAmount),
+                                 'grossTotalAmount'  =>  $this->getDibsIntVal($price),
+                                 'netTotalAmount'    =>  $this->getDibsIntVal($price)]]
+                           ];
             }
         }
         return $this;
@@ -546,61 +546,50 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
         return $helper;
     }
 
-    protected function getCustomerShippingAddress()
+    protected function getCustomerShippingAddress() 
     {
         $customerSession = Mage::getModel('customer/session');
-        $street1 = '';
-        $street2 = '';
-        $postalCode = '';
-        $city = '';
-        $country = '';
+        $shippingAddress = array();
         if($customerSession->isLoggedIn()) {
-            $customer = $customerSession->getCustomer();
-            $address = $customer->getDefaultShippingAddress();
-            if ($address) {
-                $street1 = $address->getStreet1();
-                $street2 = $address->getStreet2();
-                $postalCode = $address->getPostcode();
-                $city = $address->getCity();
-                $country = $address->getCountryModel()->getIso3Code();
-            }
+           $customer = $customerSession->getCustomer();
+           $address = $customer->getDefaultShippingAddress();
+           $shippingAddress = array(
+               'addressLine1' => $address->getStreet1(),
+               'addressLine2'=> $address->getStreet2(),
+               'postalCode'=> $address->getPostcode(),
+               'city'=> $address->getCity(),
+               'country'=> $address->getCountryModel()->getIso3Code()
+           );
         }
-        return array(
-            'addressLine1' => $street1,
-            'addressLine2'=> $street2,
-            'postalCode'=> $postalCode,
-            'city'=> $city,
-            'country'=> $country
-        );
+        return $shippingAddress;
     }
 
-    protected function getCustomer()
+    protected function getCustomer() 
     {
         return Mage::getModel('customer/session')->getCustomer();
     }
 
     /**
      * Get phone from customers address
-     *
+     * 
      * @return string|bool
      */
-    protected function extractPhone()
+    protected function extractPhone() 
     {
-        $customer = $this->getCustomer();
-        $address = $customer->getDefaultShippingAddress();
-        $prefix = '';
-        $postfix = '';
-        if ($address) {
+         $customer = $this->getCustomer();
+         $address = $customer->getDefaultShippingAddress();
+            $valid = true;
+            $prefix = '';
             switch($address->getCountry()) {
                 case 'NO':
                     $prefix = '+47';
-                    break;
+                break;
                 case 'SE':
                     $prefix = '+46';
-                    break;
+                break;
                 case 'DK':
                     $prefix = '+45';
-                    break;
+                break;
                 default:
                     $prefix = '';
             }
@@ -609,25 +598,37 @@ class Dibs_EasyCheckout_Model_Api extends Mage_Core_Model_Abstract
             if(empty($prefix)) {
                 if(preg_match('/^\+[0-9]{8,15}/', $phoneCleaned) ) {
                     $prefix = substr($phoneCleaned, 0, 3);
+                    if(empty($prefix)) {
+                        $valid = false;
+                    }
                     $postfix = substr($phoneCleaned, 3);
+                } else {
+                    $valid = false;
                 }
             } else {
-                if(preg_match('/^\+?[0-9]{8,15}/', $phoneCleaned) ) {
+                 if(preg_match('/^\+?[0-9]{8,15}/', $phoneCleaned) ) {
                     $postfix = substr($phoneCleaned, -9);
+                } else {
+                   $valid = false;
                 }
             }
-        }
-        return array('prefix' => $prefix, 'number' => $postfix);
+           $shippingAddress = array(
+               'addressLine1' => $address->getStreet1(),
+               'addressLine2'=> $address->getStreet2(),
+               'postalCode'=> $address->getPostcode(),
+               'city'=> $address->getCity(),
+               'country'=> $address->getCountryModel()->getIso3Code()
+           );
+           if($valid) {
+              return array('prefix' => $prefix, 'phone' => $postfix);
+           }
+           else return false;
     }
 
     protected function validateAddress()
     {
-        if ($shippingAddress = $this->getCustomer()->getDefaultShippingAddress()) {
-            if ($shippingAddress->validate() && $this->extractPhone()) {
-                return $shippingAddress->validate() && $this->extractPhone();
-            }
-        }
-        return false;
+       return $this->getCustomer()->getDefaultShippingAddress()->validate()
+              && $this->extractPhone();
     }
 
 }
