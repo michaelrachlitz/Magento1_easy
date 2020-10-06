@@ -34,4 +34,5 @@
 "(B2C & B2B) Defaults to B2C","(B2C & B2B) Defaults to B2C"
 "(B2B & B2C) Defaults to B2B","(B2B & B2C) Defaults to B2B"
 "Allowed Customer Types"
-
+"Shipping method","Shipping method"
+"Grand total","Total"

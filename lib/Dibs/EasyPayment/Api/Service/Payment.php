@@ -3,8 +3,8 @@
 /**
  * Class DibsEasyPayment_Api_Resource_Payment
  */
-class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
-
+class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service
+{
     /** @var Dibs_EasyPayment_Api_Service_Action_Payment_Create  */
     protected $create;
 
@@ -23,10 +23,8 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
     /** @var Dibs_EasyPayment_Api_Service_Action_Payment_UpdateReference */
     protected $updateReference;
 
-
     /**
-     * DibsEasyPayment_Api_Resource_Payment constructor.
-     *
+     * Dibs_EasyPayment_Api_Service_Payment constructor.
      * @param Dibs_EasyPayment_Api_Client $client
      */
     public function __construct(Dibs_EasyPayment_Api_Client $client)
@@ -38,13 +36,12 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
         $this->cancel = new Dibs_EasyPayment_Api_Service_Action_Payment_Cancel($this);
         $this->update = new Dibs_EasyPayment_Api_Service_Action_Payment_Update($this);
         $this->updateReference = new Dibs_EasyPayment_Api_Service_Action_Payment_UpdateReference($this);
-
     }
 
     /**
      * @param $paymentId
-     *
      * @return Dibs_EasyPayment_Api_Response
+     * @throws Dibs_EasyPayment_Api_Exception_Request
      */
     public function find($paymentId)
     {
@@ -54,8 +51,9 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
 
     /**
      * @param $params
-     *
      * @return Dibs_EasyPayment_Api_Response
+     * @throws Dibs_EasyPayment_Api_Exception_Request
+     * @throws Dibs_EasyPayment_Api_Exception_Response
      */
     public function create($params)
     {
@@ -97,7 +95,6 @@ class Dibs_EasyPayment_Api_Service_Payment extends Dibs_EasyPayment_Api_Service{
         $result = $this->update->request($paymentId, $params);
         return $result;
     }
-
 
     public function updateReference($paymentId, $params)
     {

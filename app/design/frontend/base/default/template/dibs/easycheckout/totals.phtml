@@ -1,3 +1,5 @@
+<?php /** @var Dibs_EasyCheckout_Block_Totals $this */?>
+
 <?php $shippingMethods = $this->getShippingMethods(); ?>
 <?php if($shippingMethods): ?>
     <div class="dibs-easy-checkout-section">
@@ -24,20 +26,20 @@
         <?php foreach($cartTotals as $key=>$value): ?>
             <?php if($value['id'] != 'grand_total') :?>
                 <tr id="tr-<?= $key ?>" >
-                    <td class="dibs-easy-totals-lable" id="dibs-easy-totals-lable-<?= $value['id'] ?>" id="dibs-easy-totals-lable-<?= $value['id'] ?>"><?= $value['label'] ?></td>
+                    <td class="dibs-easy-totals-label" id="dibs-easy-totals-label-<?= $value['id'] ?>" id="dibs-easy-totals-label-<?= $value['id'] ?>"><?= $value['label'] ?></td>
                     <td class="dibs-easy-totals-total" id="dibs-easy-totals-<?= $value['id'] ?>" id="dibs-easy-totals-<?= $value['id'] ?>" align="right"><?= $value['value'] ?></td>
                 </tr>
             <?php endif;?>
         <?php endforeach; ?>
-        <tr id="coupone_tr">
+        <tr id="coupon_tr">
             <td style="width: 120px;">
                 <div class="block discount" id="block-discount" data-collapsible="true" role="tablist">
-                    <div class="" id="coupone-title" onclick="couponControl(this)">
+                    <div class="" id="coupon-title" onclick="couponControl(this)">
                         <strong id="block-discount-heading" role="heading" aria-level="2">✚ <?php echo $this->__('Apply Discount Code'); ?></strong>
                     </div>
                     <div id="coupon-form" style="display: none;">
-                        <form id="discount-coupon-form" method="post" action="<?= $this->getCouponeUrl()?>">
-                            <?php if($this->getCouponeCode()): ?>
+                        <form id="discount-coupon-form" method="post" action="<?= $this->getCouponUrl()?>">
+                            <?php if($this->getCouponCode()): ?>
                                 <input type="hidden" name="remove" value="1">
                             <?php endif; ?>
                             <input type="hidden" name="return_url" value="<?= $this->getCheckoutUrl()?>">
@@ -45,16 +47,16 @@
                                 <input type="hidden" name="remove" id="remove-coupon" value="0">
                                 <div class="field" style="float:left;">
                                     <div class="control">
-                                        <input type="text" class="input-text" id="coupon_code" name="coupon_code" value="<?= $this->getCouponeCode() ?>" <?php if($this->getCouponeCode()) {echo "disabled";} ?>  placeholder="Enter discount code" value="">
+                                        <input type="text" class="input-text" id="coupon_code" name="coupon_code" value="<?= $this->getCouponCode() ?>" <?php if($this->getCouponCode()) {echo "disabled";} ?>  placeholder="Enter discount code" value="">
                                     </div>
                                 </div>
                                 <div class="primary">
                                     <button id="easy-coupon-button-submit" class="action apply primary" type="submit">
-                                        <?php if(!$this->getCouponeCode()): ?>
-                                            <span data-bind="text: coupone_button_lable"><?php echo $this->__('Applied Discount'); ?></span>
+                                        <?php if(!$this->getCouponCode()): ?>
+                                            <span data-bind="text: coupon_button_label"><?php echo $this->__('Applied Discount'); ?></span>
                                         <?php endif; ?>
-                                        <?php if($this->getCouponeCode()): ?>
-                                            <span data-bind="text: coupone_button_lable"><?php echo $this->__('Remove Discount Code'); ?></span>
+                                        <?php if($this->getCouponCode()): ?>
+                                            <span data-bind="text: coupon_button_label"><?php echo $this->__('Remove Discount Code'); ?></span>
                                         <?php endif; ?>
                                     </button>
                                 </div>
@@ -68,7 +70,7 @@
         <?php foreach($cartTotals as $key=>$value): ?>
             <?php if($value['id'] == 'grand_total') :?>
                 <tr id="tr-<?= $key ?>">
-                    <td class="dibs-easy-totals-lable" id="dibs-easy-totals-lable-<?= $value['id'] ?>" id="dibs-easy-totals-lable-<?= $value['id'] ?>">
+                    <td class="dibs-easy-totals-label" id="dibs-easy-totals-label-<?= $value['id'] ?>" id="dibs-easy-totals-label-<?= $value['id'] ?>">
                         <span><?php echo $this->__('Grand total'); ?> <?php if ($value['tax']>0) : ?>(<?php echo $this->__('Incl.'); ?> <?php echo $value['tax']; ?>)<?php endif; ?></span>
                     </td>
                     <td class="dibs-easy-totals-total" id="dibs-easy-totals-<?= $value['id'] ?>" id="dibs-easy-totals-<?= $value['id'] ?>" align="right">
@@ -79,11 +81,4 @@
         <?php endforeach; ?>
         </tbody>
     </table>
-</div>
-<div class="dibs-easy-checkout-section">
-    <div id="dibseasy-switch-checkout-screen">
-        <form action="<?php echo Mage::getUrl('checkout'); ?>">
-            <button type="submit" class="btn btn-outline-primary"><?php echo $this->__('Use other payment method');?></button>
-        </form>
-    </div>
 </div>

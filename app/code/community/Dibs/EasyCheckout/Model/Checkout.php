@@ -179,17 +179,14 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
             $shippingRatesCollection->setAddressFilter($shippingAddress->getId());
 
             $collection = $shippingAddress->getGroupedAllShippingRates();
-            $collection = Mage::getModel('checkout/cart_shipping_api')->getShippingMethodsList($quote->getId(), 1);
-
 
             foreach ($collection as $group) {
-                var_dump($group);
+                foreach ($group as $rate) {
+                    $rate->setData('active', ($rate->getCode() == $shippingAddress->getShippingMethod() ? $activeMethodIsSet = 1 : 0));
+                    $shippingMethods[$rate->getCode()] = $rate;
+                }
             }
 
-
-
-
-            exit;
             if(!$activeMethodIsSet && $shippingMethods) {
                 $current = current($shippingMethods);
                 $current['active'] = 1;
@@ -214,10 +211,18 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
     protected function getTotals() {
         $quote = $this->getQuote();
         $totals = array();
-        $totals['subtotal'] = array('id' => 'subtotal', 'value' => $this->_getHelper()->formatPrice($quote->getSubtotal()), 'label'=>'Subtotal');
+        $totals['subtotal'] = array(
+            'id' => 'subtotal',
+            'value' => Mage::helper('core')->currency($quote->getSubtotal(), true, false),
+            'label' => $this->_getHelper()->__('Subtotal')
+        );
         $shippingRate = $quote->getShippingAddress()->getShippingRateByCode($quote->getShippingAddress()->getShippingMethod());
         if($shippingRate) {
-            $totals['shipping_method'] = array('id' => 'shipping_method', 'value' => $shippingRate->getCarrierTitle(). ' - ' . $shippingRate->getMethodTitle() , 'label'=>'Shipping');
+            $totals['shipping_method'] = array(
+                'id' => 'shipping_method',
+                'value' => $shippingRate->getCarrierTitle(). ' - ' . $shippingRate->getMethodTitle(),
+                'label' => $this->_getHelper()->__('Shipping method')
+            );
         }
 
         $discountAmount = $quote->getShippingAddress()->getDiscountAmount();
@@ -226,17 +231,25 @@ class Dibs_EasyCheckout_Model_Checkout extends Mage_Core_Model_Abstract
             $discountDescription = $quote->getShippingAddress()->getDiscountDescription();
 
             if ($discountDescription) {
-                $totals['discount'] = ['id' => 'discount', 'label' => 'Discount (' . $discountDescription . ')', 'value' => $discountAmount];
+                $totals['discount'] = array(
+                    'id' => 'discount',
+                    'label' => $this->_getHelper()->__('Discount (%s)', $discountDescription),
+                    'value' => $discountAmount);
             } else {
-                $totals['discount'] = ['id' => 'discount', 'label' => 'Discount', 'value' => $discountAmount];
+                $totals['discount'] = array(
+                    'id' => 'discount',
+                    'label' => $this->_getHelper()->__('Discount'),
+                    'value' => $discountAmount
+                );
             }
-
         }
+
         $totals['grand_total'] = array(
             'id' => 'grand_total',
-            'value' => $this->_getHelper()->formatPrice($quote->getGrandTotal()),
+            'value' => Mage::helper('core')->currency($quote->getGrandTotal(), true, false),
             'tax' => $quote->getShippingAddress()->getTaxAmount()
         );
+
         return $totals;
     }
 

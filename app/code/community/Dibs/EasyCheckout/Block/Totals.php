@@ -13,16 +13,17 @@ class Dibs_EasyCheckout_Block_Totals extends Mage_Checkout_Block_Onepage_Abstrac
     }
 
     public function getCartTotals() {
+        /** @var Dibs_EasyCheckout_Model_Checkout $dibsCheckout */
         $dibsCheckout = Mage::getModel('dibs_easycheckout/checkout');
         $gridValues = $dibsCheckout->getGridValues();
         return $gridValues['totals'];
     }
 
-    public function getCouponeUrl() {
+    public function getCouponUrl() {
         return Mage::getUrl('checkout/cart/couponPost/');
     }
 
-    public function getCouponeCode() {
+    public function getCouponCode() {
         $dibsCheckout = Mage::getModel('dibs_easycheckout/checkout');
         return $dibsCheckout->getQuote()->getCouponCode();
     }
